@@ -9,6 +9,7 @@
     "examples": "es-dev-server --open='examples/' --watch --node-resolve"
   },
   "author": "tstewart@klaudhaus.com",
+  "repository": "github:klaudhaus/lit-up",
   "license": "MIT",
   "dependencies": {
     "lit-html": "^1.1.2"
