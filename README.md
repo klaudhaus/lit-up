@@ -82,7 +82,7 @@ const updates = {
 }
 
 const view = model => html`
-	<h1>Hello ${model.name}</h1>
+  <h1>Hello ${model.name}</h1>
   <button @click=${up("dec")}>-</button>
   <input type="text" disabled value=${model.counter}
   <button @click=${up("inc")}>+</button>
@@ -97,7 +97,7 @@ app({ model, view, updates })
 
 `view` is a function that takes the model and returns a representation of that model as HTML, using the `html` literal tag from `lit-html` (which is re-exported by `lit-up`). If you haven't seen `lit-html` yet, then head over to it's documentation site to read all about it. 
 
-The special bit that `lit-up` provides is the `up` function, which prepares an event handler (which you link to an event in a `lit-html` template using the `@` symbol) that updates the model and re-renders the view.
+The special bit that `lit-up` provides is the `up` function. This prepares an event handler that updates the model and re-renders the view. You can link this handler to events in your `lit-html` template using the `@` prefix.
 
 ## Using `up` 
 
@@ -105,9 +105,9 @@ The special bit that `lit-up` provides is the `up` function, which prepares an e
 
 There are a couple of different ways you can tell `up` what update function to call.
 
-`up((key: String) || (update: Function), data])`
+`up((key: String) || (update: Function), data)`
 
-If you pass a `String` to up (as in the above usage example) then `lit-up` looks for that key in the `updates` object that was provided when the `app` was initialised and runs the function it finds there. This is the recommended approach as this allows for clearly labelled logging of all model updates in your application.
+If you pass a `String` to up (as in the basic usage example above) then `lit-up` looks for that key in the `updates` object that was provided when the `app` was initialised and runs the function it finds there. This is the recommended approach as this allows for clearly labelled logging of all model updates in your application.
 
 If instead you pass a `Function` as the first parameter, then that function itself is used as the update. This can be handy for adding localised processing at a lower level of the application (although there are various other ways to do that too, as described later under "Applications structure"). This also means you can build an app with no `updates` object at all if you want.
 
@@ -132,9 +132,9 @@ const updates = {
 const view = model => html`
   ${model.items.map(item => html`
     <li>
-			${item.label}
-			<button @click=${up("deleteItem", item)}>X</button>
-		<li>
+      ${item.label}
+      <button @click=${up("deleteItem", item)}>X</button>
+    <li>
   `)
 }
 ```
@@ -158,7 +158,7 @@ const view = model => html`
 
 ### Asynchronous updates
 
-All update functions are called with `await`. That means that you can use an `async` function, or a function that returns a promise, and `lit-up` will wait for the function to complete before re-rendering the view.
+All update functions are called with `await`. That means that you can use an `async` function, or a function that returns a promise, and `lit-up` will wait for the promise to be resolved before re-rendering the view.
 
 ```js
 const updates = {
@@ -220,7 +220,7 @@ The examples so far have shown small, single-file scenarios. As your application
 
 ### Web Components
 
-If you identify a generic component that is commonly reused across different projects, it is a good candidate to be implmented as a Web Component, using a library such as `lit-element`. Whilst Web Component development is outside of the scope of this document, using Web Components within `lit-up` apps (or indeed any `lit-html` template) is as easy as referencing the appropriate tag name and setting its attributes, properties and event handlers accordingly.
+If you identify a generic component that is commonly reused across different projects, it is a good candidate to be implemented as a Web Component, using a library such as `lit-element`. Whilst Web Component development is outside of the scope of this document, using Web Components within `lit-up` apps (or indeed any `lit-html` template) is as easy as referencing the appropriate tag name and setting its attributes, properties and event handlers (using `up`) accordingly.
 
 ### Application fragments without Web Components
 
@@ -233,7 +233,11 @@ At its simplest, a fragment may just need a view, in which case you can export a
 ```js
 // item-view.js
 
-export const itemView = item => html`<div>${item.label} ${item.estimate}</div>`
+import { html, up } from "@klaudhaus/lit-up"
+
+export const itemView = item => html`
+  <div @click=${up("selectItem", item)}>${item.label} ${item.estimate}</div>
+`
 ```
 
 You can now use that view within any other view.
@@ -270,17 +274,17 @@ Object.assign(updates, {
 })
 
 export const itemView = item => html`
-	<div>
-		${item.label} ${item.estimate}
-		<input type="checkbox" checked=${item.completed} 
-			@change=${up("itemView.toggleItemCompleted", item)}/>
-	</div>
+  <div>
+    ${item.label} ${item.estimate}
+    <input type="checkbox" checked=${item.completed} 
+      @change=${up("itemView.toggleItemCompleted", item)}/>
+  </div>
 `
 ```
 
 ### Hidden state (advanced)
 
-What if a fragment needs to have a hidden inner state that is of no concern to its containing application? One example would be a container that transitions between different pages in a navigation model. The containing app should only concern itself with what are the overall list of pages within the navigation and which one is currently displayed, whist the component itself stores both the last selected state and the current one during the transition operation. With a bit of imagination this can also be approached with `lit-up` application fragments, using approaches such as Weak Maps mapping the internal state against some identifier from the fragment's model. However, this is a good example of when it may well make sense to implement a Web Component. 
+What if a fragment needs to have a hidden inner state that is of no concern to its containing application? One example would be a container that transitions between different pages in a navigation model. The containing app should only concern itself with what are the overall list of pages within the navigation and which one is currently displayed, whilst the component itself stores both the last selected state and the current one during the transition operation. With a bit of imagination this can also be approached with `lit-up` application fragments, using approaches such as Weak Maps mapping the internal state against some identifier from the fragment's model. However, this is a good example of when it may well make sense to implement a Web Component. 
 
 ## Logging mode
 
@@ -290,16 +294,16 @@ You can put `lit-up` into logging mode with an additional app parameter.
 app({ model, updates, view, logger: true })
 ```
 
-All updates will now be logged to the console, with the string key of the update function (or an indicator that a function was passed directly to `up`) and the data and event parameters.
+All string-keyed updates will now be logged to the console, with the update function key and the data and event parameters.
 
 You can alternatively pass a different logging function (default is `console.log`).
 
 ```js
-const myLogger = (update, data, event) => {
+const logger = (update, data, event) => {
   console.log(`This just happened: ${update}`)
 }
 
-app({ model, updates, view, log: myLogger })
+app({ model, updates, view, logger })
 ```
 
 ## Roadmap
