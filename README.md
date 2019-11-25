@@ -109,7 +109,7 @@ There are a couple of different ways you can tell `up` what update function to c
 
 If you pass a `String` to up (as in the above usage example) then `lit-up` looks for that key in the `updates` object that was provided when the `app` was initialised and runs the function it finds there. This is the recommended approach as this allows for clearly labelled logging of all model updates in your application.
 
-If instead you pass a `Function` as the first parameter, then that function itself is used as the update. This can be handy for adding localised processing at a lower level of the application (although there are various other ways to do that too, as described later under "Applications and Components"). This also means you can build an app with no `updates` object at all if you want.
+If instead you pass a `Function` as the first parameter, then that function itself is used as the update. This can be handy for adding localised processing at a lower level of the application (although there are various other ways to do that too, as described later under "Applications structure"). This also means you can build an app with no `updates` object at all if you want.
 
 ### Update data
 
@@ -191,6 +191,8 @@ const updates = {
 }
 ```
 
+Note that even if you don't wish to pass specific update data when calling `up` directly from JavaScript, you still need the second set of parentheses, as the result of `up` itself is a function.
+
 ### Chained Updates
 
 Updates can return the key of another update to perform in the chain, like:
@@ -211,8 +213,6 @@ const updates = {
 ```
 
 In this case, rerendering will occur between each update, and the `data` and `event` parameters are passed forwards along the chain.
-
-Note that even if you don't wish to pass specific update data when calling `up` directly from JavaScript, you still need the second set of parentheses, as the result of `up` itself is a function.
 
 ## Application structure
 
@@ -304,4 +304,4 @@ app({ model, updates, view, log: myLogger })
 
 ## Roadmap
 
-* Multiple apps per page (currently the model uses singleton internal state)
+* Multiple apps per page (currently the module uses singleton internal state)
