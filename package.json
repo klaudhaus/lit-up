@@ -1,0 +1,23 @@
+{
+  "name": "lit-up",
+  "version": "0.1.0",
+  "description": "A quick way to get up and running with `lit-html` templating and a reactive data flow",
+  "main": "lit-up.js",
+  "module": "lit-up.js",
+  "scripts": {
+    "test": "mocha test/lit-up-test.js",
+    "examples": "es-dev-server --open='examples/' --watch --node-resolve"
+  },
+  "author": "tstewart@klaudhaus.com",
+  "license": "MIT",
+  "dependencies": {
+    "lit-html": "^1.1.2"
+  },
+  "devDependencies": {
+    "@popeindustries/lit-html-server": "^1.6.0",
+    "chai": "^4.2.0",
+    "es-dev-server": "^1.26.1",
+    "esm": "^3.2.25",
+    "mocha": "^6.2.2"
+  }
+}
