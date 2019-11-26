@@ -1,6 +1,6 @@
 # lit-up
 
-> Have you seen the light?
+> Build web apps the light way
 
 A quick way to get up and running with [`lit-html`](https://github.com/Polymer/lit-html) templating and a reactive data flow.
 

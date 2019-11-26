@@ -1,12 +1,15 @@
 {
   "name": "@klaudhaus/lit-up",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "A quick way to get up and running with `lit-html` templating and a reactive data flow",
   "main": "lit-up.js",
   "module": "lit-up.js",
   "scripts": {
     "test": "mocha test/lit-up-test.js",
     "examples": "es-dev-server --open='examples/' --watch --node-resolve"
+  },
+  "bin": {
+    "lit-up-examples": "./examples/bin.js"
   },
   "author": "tstewart@klaudhaus.com",
   "repository": "github:klaudhaus/lit-up",
