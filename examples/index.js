@@ -8,9 +8,9 @@ const model = {
   inputText: "",
   remoteData: "",
   options: [
-    {label: "Mars"},
-    {label: "Jupiter"},
-    {label: "Venus"}
+    { label: "Mars" },
+    { label: "Jupiter" },
+    { label: "Venus" }
   ],
   selectedOption: null
 }
@@ -18,19 +18,19 @@ const model = {
 // User actions that may update the data model
 const updates = {
   // Example of an action that reads event data
-  mirrorValue(data, evt) {
+  mirrorValue (data, evt) {
     model.inputText = evt.target.value
   },
 
   // Example of an action with an asynchronous result
-  async fetchData() {
+  async fetchData () {
     const response = await fetch("data.json")
     const data = await response.json()
     model.remoteData = data.value
   },
 
   // Example of an action with attached data
-  select(option) {
+  select (option) {
     model.selectedOption = option
   }
 }
@@ -52,7 +52,7 @@ const fetchView = model => html`
 // UI for a selection between options
 const optionView = (option, selected) => html`
   <li @click=${up("select", option)}
-      class="${ classMap({ selected }) }" >
+      class="${classMap({ selected })}" >
       ${option.label}
   </li>
 `

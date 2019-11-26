@@ -2,12 +2,13 @@
 global.window = {}
 
 // Enable ES6 module loading (cannot use `-r esm` due to substitution of global window object above)
+// eslint-disable-next-line no-global-assign
 require = require("esm")(module)
 
 // Obtain lit-html equivalent implementation for node-based testing
 const { html, renderToString } = require("@popeindustries/lit-html-server")
 const document = { body: "" }
-const render = async result => document.body = await renderToString(result)
+const render = async result => { document.body = await renderToString(result) }
 
 // Import module under test and assign node-based rendering implementation
 const { app, up, impl } = require("../lit-up")
@@ -17,7 +18,7 @@ Object.assign(impl, { html, render })
 require("chai").should()
 
 // Utility to create promise of short delay for mocking async operations
-const wait = (delay = 100) => new Promise(res => setTimeout(res, delay))
+const wait = (delay = 100) => new Promise(resolve => setTimeout(resolve, delay))
 
 describe("lit-up", () => {
   describe("basic api", () => {
@@ -41,7 +42,7 @@ describe("lit-up", () => {
     })
 
     it("should render a simple model and view", async () => {
-      const model = {name: "Tim"}
+      const model = { name: "Tim" }
       const view = model => html`Hello, ${model.name}!`
       await app({ model, view })
       document.body.should.equal("Hello, Tim!")
@@ -75,8 +76,8 @@ describe("lit-up", () => {
       const model = { counter: 0 }
       const view = model => html`Count: ${model.counter}`
       const updates = {
-        inc () { model.counter ++ },
-        dec () { model.counter -- }
+        inc () { model.counter++ },
+        dec () { model.counter-- }
       }
       await app({ model, view, updates })
       document.body.should.equal("Count: 0")
@@ -130,12 +131,12 @@ describe("lit-up", () => {
 
     it("should provide customisable logging", async () => {
       const model = { text: "" }
-      const updates = { setText (text) { model.text = text }}
+      const updates = { setText (text) { model.text = text } }
       const logEntries = []
       const logger = (update, data) => {
         logEntries.push(`Update: ${update}, Data: ${data}`)
       }
-      await app ({ model, updates, logger })
+      await app({ model, updates, logger })
       await up("setText", "first")()
       await up("setText", "second")()
       logEntries.should.have.length(2)

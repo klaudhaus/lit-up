@@ -18,6 +18,7 @@ let _model, _updates, _view, _element, _logger
  * @param view The top-level application view function
  * @param element Where to render app - defaults to page body
  * @param bootstrap Function to run on app load, defaults to updates.bootstrap if present
+ * @param logger { boolean | function } `true` to use console.log, or pass a custom logger function
  */
 export const app = async ({
   model = {},
@@ -51,7 +52,7 @@ export const up = (update, data = {}, doDefault = false) => async event => {
   // Prevent default event actions (e.g. form submit) unless specifically enabled
   if (event && !doDefault) event.preventDefault()
 
-  try{
+  try {
     // Enable update chaining
     while (update) {
       if (typeof update === "function") {
@@ -66,7 +67,7 @@ export const up = (update, data = {}, doDefault = false) => async event => {
         }
       } else update = null // Any other type will end the chain
     }
-  } catch(error) {
+  } catch (error) {
     // Log the update, data and event that caused an error for ease of debugging
     console.log("** Error in update: ", update, "** data: ", data, "** event: ", event)
     throw error

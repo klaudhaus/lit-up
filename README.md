@@ -124,7 +124,7 @@ const model = {
 
 const updates = {
   deleteItem: item => {
-    model.items.remove(item)
+    model.items.splice(items.indexOf(item), 1)
   }
 }
 
@@ -134,8 +134,8 @@ const view = model => html`
       ${item.label}
       <button @click=${up("deleteItem", item)}>X</button>
     <li>
-  `)
-}
+  `)}
+`
 ```
 
 ### Update event
@@ -144,7 +144,7 @@ Update functions are called with one additional parameter, the `Event` that trig
 
 ```js
 const updates = {
-  setMessageAndName (msg, e)
+  setMessageAndName (msg, e) {
     model.display = `Message: ${msg}, Input Value: ${e.target.value}`  
   }
 }
@@ -245,7 +245,7 @@ You can now use that view within any other view.
 import { itemView } from "./item-view.js"
 
 const itemList = items => {
-  let total = items.reduce((t, i) => t + i.estimate), 0)
+  let total = items.reduce((t, i) => t + i.estimate, 0)
   return html`
     <h4>Items</h4>
     ${items.map(itemView(item))}
