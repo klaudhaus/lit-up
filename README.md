@@ -2,7 +2,7 @@
 
 > Have you seen the light?
 
-A quick way to get up and running with `lit-html` templating and a reactive data flow.
+A quick way to get up and running with [`lit-html`](https://github.com/Polymer/lit-html) templating and a reactive data flow.
 
 Pass a model object, a view function and an updates collection to the `app` function:
 
@@ -18,11 +18,10 @@ Then in your templates, use `up` to handle user events:
 
 ## What?
 
-`lit-up` is a small and efficient state pattern library for JavaScript applications that use templates made with `lit-html`. It follows the industry best practice of reactive one-way data flow, as inspired by the Elm Architecture and popularised by Redux, so in a (somewhat oversimplified) way you can imagine that `lit-up` is to `lit-html` as Redux is to React.
-
+`lit-up` is a small and efficient state pattern library for JavaScript applications that use templates made with `lit-html`. It follows the industry best practice of reactive one-way data flow, as inspired by the Elm Architecture and popularised by Redux, so in a (somewhat simplified) way you can imagine that `lit-up` is to `lit-html` as Redux is to React.
 ## Why?
 
-Existing app structure frameworks can be quite heavyweight, involving (relative to `lit-up`) large downloads, lots of dependencies, steep learning curves and possibly a transpiling toolchain. `lit-up` helps you get up and running more quickly. It is small (< 1kB minified, < 6KB when bundled together with `lit-html`), simple yet powerful, performs well, and can be loaded along with its dependencies as an ES6 module directly in a modern browser.
+Existing app structure frameworks can be quite heavyweight, involving (relative to `lit-up`) large downloads, lots of dependencies, steep learning curves and possibly a transpiling toolchain. `lit-up` helps you get up and running more quickly. It is small (< 1KB minified, < 4KB bundled together with `lit-html`), simple yet powerful, performs well, and can be loaded along with its dependencies as an ES6 module directly in a modern browser.
 
 ## Installation
 
@@ -31,7 +30,7 @@ Existing app structure frameworks can be quite heavyweight, involving (relative 
 If you want to try `lit-up` without installing anything locally, you can import it within your app's JS file directly from a CDN, like:
 
 ```js
-import { html, app, up } from "http://cdn.pika.dev/lit-up"
+import { html, app, up } from "https://cdn.pika.dev/@klaudhaus/lit-up"
 ```
 
 Because your app's JS file uses an ES6 import, you'll need to specify `type=module` on the `script` tag, like:
@@ -84,7 +83,7 @@ const updates = {
 const view = model => html`
   <h1>Hello ${model.name}</h1>
   <button @click=${up("dec")}>-</button>
-  <input type="text" disabled value=${model.counter}
+  <input type="text" disabled value=${model.counter} />
   <button @click=${up("inc")}>+</button>
 `
 
@@ -95,7 +94,7 @@ app({ model, view, updates })
 
 `updates` is a set of functions representing the actions that can update the model. It can be a plain object as shown above, or a class which accepts `model` as its constructor parameter.
 
-`view` is a function that takes the model and returns a representation of that model as HTML, using the `html` literal tag from `lit-html` (which is re-exported by `lit-up`). If you haven't seen `lit-html` yet, then head over to it's documentation site to read all about it. 
+`view` is a function that takes the model and returns a representation of that model as HTML, using the `html` literal tag from `lit-html` (which is re-exported by `lit-up`). If you haven't seen `lit-html` yet, then head over to it's [documentation site](https://lit-html.polymer-project.org/) to read all about it. 
 
 The special bit that `lit-up` provides is the `up` function. This prepares an event handler that updates the model and re-renders the view. You can link this handler to events in your `lit-html` template using the `@` prefix.
 
@@ -151,7 +150,7 @@ const updates = {
 }
 
 const view = model => html`
-  <input @input=${up("showMessageAndValue", { msg: "Hello" })}
+  <input @input=${up("showMessageAndValue", { msg: "Hello" })} />
   <div>${display}</div>
 `
 ```
@@ -204,7 +203,7 @@ const updates = {
     return "continueFetch"
   },
   
-  continueFetch () {
+  async continueFetch () {
     const response = await fetch("./status.json")
     const status = await response.JSON()
     model.statusMessage = status.message
@@ -248,10 +247,11 @@ import { itemView } from "./item-view.js"
 const itemList = items => {
   let total = items.reduce((t, i) => t + i.estimate), 0)
   return html`
-		<h4>Items</h4>
-		${items.map(itemView(item))}
-		<div>Total: ${total}</div>
-	`
+    <h4>Items</h4>
+    ${items.map(itemView(item))}
+    <div>Total: ${total}</div>
+  `
+}
 ```
 
 #### Update functions
@@ -277,7 +277,7 @@ export const itemView = item => html`
   <div>
     ${item.label} ${item.estimate}
     <input type="checkbox" checked=${item.completed} 
-      @change=${up("itemView.toggleItemCompleted", item)}/>
+      @change=${up("itemView.toggleItemCompleted", item)} />
   </div>
 `
 ```
