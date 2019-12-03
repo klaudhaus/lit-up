@@ -52,34 +52,30 @@ export const up = (update, data = {}, doDefault = false) => async event => {
   // Prevent default event actions (e.g. form submit) unless specifically enabled
   if (event && !doDefault) event.preventDefault()
 
-  try {
-    // Enable update chaining
-    while (update) {
-      if (typeof update === "function") {
-        // Execute updates provided as functions
-        update = await update(data, event)
-      } else if (typeof update === "string" && typeof _updates[update] === "function") {
-        // Execute updates provided as keys of the updates object
-        const handler = dotPath(_updates, update)
-        if (typeof handler === "function") {
-          if (typeof _logger === "function") _logger(update, data, event, _model)
-          update = await _updates[update](data, event)
-        }
-      } else update = null // Any other type will end the chain
+  // Enable update chaining
+  while (update) {
+    const key = typeof update === "string" ? update : "anon" // Default update key for logging non-string calls
+    if (typeof update === "string") {
+      // Resolve update key within updates object
+      update = dotPath(_updates, update)
     }
-  } catch (error) {
-    // Log the update, data and event that caused an error for ease of debugging
-    console.log("** Error in update: ", update, "** data: ", data, "** event: ", event)
-    throw error
+    if (typeof update === "function") {
+      if (typeof _logger === "function") _logger(key, { data, event, model: _model })
+      update = update.call(_updates, data, event)
+      if (update instanceof Promise) {
+        const renderAndWait = await Promise.all([doRender(), update])
+        update = renderAndWait[1]
+      }
+    } else update = null // Any other type will end the chain
   }
 
-  return await impl.render(_view(_model), _element)
+  return await doRender()
 }
 
 const dotPath = (target, path) => {
   const parts = path.split(".")
-  while (target && parts.length) {
-    target = target[parts.shift()]
-  }
+  while (target && parts.length) target = target[parts.shift()]
   return target
 }
+
+const doRender = () => impl.render(_view(_model), _element)

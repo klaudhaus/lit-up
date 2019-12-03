@@ -55,11 +55,16 @@ Again this will need to be within a JavaScript file loaded with the `type=module
 
 #### ES6 module resolution
 
-If you're using the CDN approach this is all handled for you. Otherwise, you'll also need a way for your browser to resolve ES6 modules to their location within `node_modules`. The simplest way is to use `es-dev-server`, as demonstrated by the examples which you can run with:
+If you're using the CDN approach this is all handled for you. Otherwise, you'll also need a way for your browser to resolve ES6 modules to their location within `node_modules` during development. The simplest way is to use `es-dev-server`, as follows:
 
-`npm run examples`
+```bash
+npm install --save-dev es-dev-server
+npx es-dev-server --node-resolve --watch
+```
 
-But as browser support for *import maps* continues to roll out you may wish to look into that option too - that way you don't need any special server behavior in development. 
+(With the `--watch` flag it also helpfully reloads your browser when you make changes to your application.)
+
+As browser support for *import maps* continues to roll out you may wish to look into that option instead - that way you don't need any special server behavior in development.
 
 For production builds, you'll generally package your code together with a bundler like `rollup`.
 
@@ -96,7 +101,7 @@ app({ model, view, updates })
 
 `view` is a function that takes the model and returns a representation of that model as HTML, using the `html` literal tag from `lit-html` (which is re-exported by `lit-up`). If you haven't seen `lit-html` yet, then head over to it's [documentation site](https://lit-html.polymer-project.org/) to read all about it. 
 
-The special bit that `lit-up` provides is the `up` function. This prepares an event handler that updates the model and re-renders the view. You can link this handler to events in your `lit-html` template using the `@` prefix.
+Passing these parameters to `app` causes `lit-up` to call the view function with the supplied data model and render the result using `lit-html` (you can specify an optional target `element`, otherwise it's rendered to the page body). The special bit that `lit-up` provides is the `up` function. This prepares an event handler that calls the matching update function, passing any specified data, and then re-renders the view. You can link this handler to a user event in your `lit-html` template using the `@` prefix.
 
 ## Using `up` 
 
@@ -124,7 +129,7 @@ const model = {
 
 const updates = {
   deleteItem: item => {
-    model.items.splice(items.indexOf(item), 1)
+    model.items.splice(model.items.indexOf(item), 1)
   }
 }
 
@@ -144,7 +149,7 @@ Update functions are called with one additional parameter, the `Event` that trig
 
 ```js
 const updates = {
-  setMessageAndName (msg, e) {
+  showMessageAndValue (msg, e) {
     model.display = `Message: ${msg}, Input Value: ${e.target.value}`  
   }
 }
@@ -192,6 +197,27 @@ const updates = {
 
 Note that even if you don't wish to pass specific update data when calling `up` directly from JavaScript, you still need the second set of parentheses, as the result of `up` itself is a function.
 
+```js
+window.onresize = () => { 
+  up("winResize")() 
+} 
+
+const updates = {
+  winResize() {
+    model.windowWidth = window.innerWidth
+    model.windowHeight = window.innerHeight
+  }
+}
+```
+
+Note that in cases such as above, because `up` itself returns a function designed to be used as an event handler, and there is no other processing or transformation of data going on before calling the update function, we can do:
+
+```js
+subscribe(myService, up("gotServiceInfo"))
+
+window.onresize = up("winResize")
+```
+
 ### Chained Updates
 
 Updates can return the key of another update to perform in the chain, like:
@@ -212,6 +238,35 @@ const updates = {
 ```
 
 In this case, rerendering will occur between each update, and the `data` and `event` parameters are passed forwards along the chain.
+
+### Namespaced Updates
+
+Update functions can be nested within namespaces in the main updates object, allowing for growth in application complexity and separation of logic (see Application structure). In this case, provide the full path in the call to `up`.
+
+```js
+const updates = {
+  login: {
+    async submit ({ user, pass }) {
+      const result = await tryLogin(user, pass)
+      if (result.success) model.loggedIn = true
+      else model.loginError = result.error
+    }
+  },
+  
+  applicationForm: {
+    async submit (data) {
+      const result = await submitApplication(data)
+      model.applicationStatus = result.status
+    }
+  }
+}
+```
+
+```html
+<button @click=${up("login.submit", { user, pass })} />
+
+<button @click=${up("applicationForm.submit", formData )} />
+```
 
 ## Application structure
 

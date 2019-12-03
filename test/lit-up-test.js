@@ -102,10 +102,17 @@ describe("lit-up", () => {
     it("should accept class as updates parameter", async () => {
       const model = { name: "Tim" }
       const view = model => html`Hello, ${model.name}`
+
       class Updates {
-        constructor (model) { this.model = model }
-        setName (name) { this.model.name = name }
+        constructor (model) {
+          this.model = model
+        }
+
+        setName (name) {
+          this.model.name = name
+        }
       }
+
       const updates = new Updates(model)
       await app({ model, view, updates })
       document.body.should.equal("Hello, Tim")
@@ -133,7 +140,7 @@ describe("lit-up", () => {
       const model = { text: "" }
       const updates = { setText (text) { model.text = text } }
       const logEntries = []
-      const logger = (update, data) => {
+      const logger = (update, { data }) => {
         logEntries.push(`Update: ${update}, Data: ${data}`)
       }
       await app({ model, updates, logger })

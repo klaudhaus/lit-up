@@ -3,6 +3,9 @@
 import { html, app, up } from "../lit-up.js"
 import { classMap } from "lit-html/directives/class-map"
 
+// Create a promise of a short delay
+const wait = (delay = 100) => new Promise(resolve => setTimeout(resolve, delay))
+
 // The data model for the examples application
 const model = {
   inputText: "",
@@ -24,6 +27,12 @@ const updates = {
 
   // Example of an action with an asynchronous result
   async fetchData () {
+    model.remoteData = "Fetching remote data now..."
+    return "continueFetchData"
+  },
+
+  async continueFetchData () {
+    await wait(1000)
     const response = await fetch("data.json")
     const data = await response.json()
     model.remoteData = data.value
