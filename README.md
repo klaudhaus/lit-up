@@ -162,7 +162,7 @@ const view = model => html`
 
 ### Asynchronous updates
 
-All update functions are called with `await`. That means that you can use an `async` function, or a function that returns a promise, and `lit-up` will wait for the promise to be resolved before re-rendering the view.
+If the update is an `async` function, or any function that returns a Promise, then `lit-up` will wait for the promise to be resolved before re-rendering the view.
 
 ```js
 const updates = {
@@ -237,7 +237,7 @@ const updates = {
 }
 ```
 
-In this case, rerendering will occur between each update, and the `data` and `event` parameters are passed forwards along the chain.
+Rerendering will occur between asynchronous updates, so in the above example the "Waiting..." message will display while the remote resource is being fetched. The `data` and `event` parameters received with the initial update are passed forwards along the chain.
 
 ### Namespaced Updates
 
@@ -354,8 +354,10 @@ All string-keyed updates will now be logged to the console, with the update func
 You can alternatively pass a different logging function (default is `console.log`).
 
 ```js
-const logger = (update, data, event) => {
+const logger = (update, { data, event }) => {
   console.log(`This just happened: ${update}`)
+  console.log("Data: ", data)
+  console.log("Event: ", event)
 }
 
 app({ model, updates, view, logger })

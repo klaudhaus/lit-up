@@ -41,7 +41,7 @@ export const app = async ({
 
 /**
  * Event handler factory function.
- * Use in templates like `@click=up("selectItem", item)`.
+ * Use in templates like `@click=${up("selectItem", item)}`.
  * Use from elsewhere like `up("messageReceived", message)()`.
  * @param update A function or the key of a member of the application updates object.
  * @param data update-related data.
