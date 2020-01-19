@@ -34,9 +34,7 @@ export const app = async ({
   _element = element
   _logger = logger === true ? console.log : logger
 
-  if (typeof bootstrap === "function") await bootstrap()
-
-  return await up()()
+  return await up("bootstrap")()
 }
 
 /**
