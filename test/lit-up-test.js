@@ -50,12 +50,14 @@ describe("lit-up", () => {
 
     it("should run an async bootstrap provided as a parameter", async () => {
       const model = { loaded: false }
-      const bootstrap = async () => {
-        model.loaded = true
-        return wait()
+      const updates = {
+        async bootstrap () {
+          await wait()
+          model.loaded = true
+        }
       }
       const view = model => html`Loaded: ${model.loaded ? "Yes" : "No"}`
-      await app({ model, view, bootstrap })
+      await app({ model, view, updates })
       document.body.should.equal("Loaded: Yes")
     })
 

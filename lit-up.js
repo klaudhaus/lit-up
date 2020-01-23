@@ -25,7 +25,6 @@ export const app = async ({
   updates = {},
   view = () => impl.html`No view specified`,
   element = typeof document === "object" && document.body,
-  bootstrap = updates.bootstrap,
   logger = false
 } = {}) => {
   _model = model
@@ -50,21 +49,22 @@ export const up = (update, data = {}, doDefault = false) => async event => {
   // Prevent default event actions (e.g. form submit) unless specifically enabled
   if (event && !doDefault) event.preventDefault()
 
-  // Enable update chaining
-  while (update) {
-    const key = typeof update === "string" ? update : "anon" // Default update key for logging non-string calls
-    if (typeof update === "string") {
+  // Enable update chaining, with locally mutated update key to preserve original value in long-liced handlers
+  let doUpdate = update
+  while (doUpdate) {
+    const key = typeof doUpdate === "string" ? doUpdate : "anon" // Default update key for logging non-string calls
+    if (typeof doUpdate === "string") {
       // Resolve update key within updates object
-      update = dotPath(_updates, update)
+      doUpdate = dotPath(_updates, doUpdate)
     }
-    if (typeof update === "function") {
+    if (typeof doUpdate === "function") {
       if (typeof _logger === "function") _logger(key, { data, event, model: _model })
-      update = update.call(_updates, data, event)
-      if (update instanceof Promise) {
-        const renderAndWait = await Promise.all([doRender(), update])
-        update = renderAndWait[1]
+      doUpdate = doUpdate.call(_updates, data, event)
+      if (doUpdate instanceof Promise) {
+        const renderAndWait = await Promise.all([doRender(), doUpdate])
+        doUpdate = renderAndWait[1]
       }
-    } else update = null // Any other type will end the chain
+    } else doUpdate = null // Any other type will end the chain
   }
 
   return await doRender()
