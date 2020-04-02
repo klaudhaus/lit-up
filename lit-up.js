@@ -43,7 +43,7 @@ export const app = async ({
  * @param doDefault If specified as true, default event handling will execute. Defaults to false.
  * @returns {Function} An event handler suitable for use in `lit-html` templates.
  */
-export const up = (update, data = {}, { doDefault = false }) => async event => {
+export const up = (update, data = {}, { doDefault = false } = {}) => async event => {
   // Prevent default event actions (e.g. form submit) unless specifically enabled
   if (event && !doDefault) event.preventDefault()
 
