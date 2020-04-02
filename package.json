@@ -1,6 +1,6 @@
 {
   "name": "@klaudhaus/lit-up",
-  "version": "1.0.0-alpha-1",
+  "version": "1.0.0-alpha-2",
   "description": "A quick way to get up and running with `lit-html` templating and a reactive data flow",
   "main": "lit-up.js",
   "module": "lit-up.js",
