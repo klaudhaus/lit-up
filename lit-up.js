@@ -1,10 +1,7 @@
-import { html, render } from "lit-html"
-
-// Convenience, reexport default `html` tag from lit-html
-export { html }
+import { render } from "lit-html"
 
 // Allow override of lit-html implementation (e.g. for use in tests)
-export const impl = { html, render }
+export const impl = { render }
 
 // Note: this module currently implements a singleton app pattern,
 // and does not support multiple apps on the same page.
@@ -21,7 +18,7 @@ let _model, _view, _element, _logger
  */
 export const app = async ({
   model = {},
-  view = () => impl.html`No view specified`,
+  view = () => "lit-up: No view specified",
   element = typeof document === "object" && document.body,
   bootstrap = () => {},
   logger = false
@@ -36,8 +33,8 @@ export const app = async ({
 
 /**
  * Event handler factory function.
- * Use in templates like `@click=${up("selectItem", item)}`.
- * Use from elsewhere like `up("messageReceived", message)()`.
+ * Use in templates like `@click=${up(selectItem, item)}`.
+ * Use from elsewhere like `up(messageReceived, message)()`.
  * @param update A function which will update the model
  * @param data update-related data
  * @param doDefault If specified as true, default event handling will execute. Defaults to false.
@@ -47,10 +44,11 @@ export const up = (update, data = {}, { doDefault = false } = {}) => async event
   // Prevent default event actions (e.g. form submit) unless specifically enabled
   if (event && !doDefault) event.preventDefault()
 
-  // Enable update chaining
+  let isChained = false
   while (typeof update === "function") {
     const entry = {
       update, data, event, // eslint-disable-line object-property-newline
+      isChained,
       model: _model,
       name: update.name,
       time: new Date().getTime()
@@ -59,9 +57,10 @@ export const up = (update, data = {}, { doDefault = false } = {}) => async event
     log(entry)
     if (update instanceof Promise) {
       const renderAndWait = await Promise.all([doRender(), update])
+      log({ ...entry, ...{ time: new Date().getTime() } })
       update = renderAndWait[1]
-      log({ ...entry, ...{ isChained: true } })
     }
+    isChained = true
   }
 
   return await doRender()
