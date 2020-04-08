@@ -207,7 +207,7 @@ const loadArticleHeadline = async article =>
   }
 ```
 
-Alternatively, the next update may be returned as an object with the keys `update`, `data` and `event` in order to allow different update data to be passed along.
+Alternatively, the next update may be returned as an object with the keys `update`, `data` and `event` to allow different update data to be passed along.
 
 ```js
 const nextArticle = async articles, id =>
@@ -217,6 +217,20 @@ const nextArticle = async articles, id =>
   articles.push(article)
   return { update: loadArticleHeadline, data: article }
 ```
+
+A sequence of several subsequent updates can be specified via an array of functions or `{update, data, event}` objects. In the following example, the `stageOne` update will be called with `someData`, the `wait` update will cause a half-second delay, and the `stageTwo` update will be called with `innerValue` as its data argument.
+
+```js
+const wait = duration => new Promise(resolve => setTimeout(resolve, duration))
+
+const playAnimation = someData => [
+  stageOne,
+  { update: wait, data: 500 },
+  { update: stageTwo, data: someData.innerValue }
+]
+```
+
+The rendering point rules hold true for all chained updates, so in the above example the view would be rerendered by the `wait` update both immediately and on completion of 500 milliseconds. If you need multiple asynchronous operations without rerendering, call them within the function body of a single update rather than as a return value.
 
 Any connected logger will receive the key `isChained` for an update that was triggered as part of a chain.
 
@@ -279,14 +293,14 @@ import { component } from "./component"
 
 const view = ({ model, up }) => html`
   <h1>Title</h1>
-  ${component({ value: model.value, up })}`
+  ${component(up, value)}`
 
 app({ model, view, render })
 ```
 
 ```js
 \\ component.js
-export const component = ({ value, up }) => html`
+export const component = (up, value) => html`
 	<h2>${value}</h2>
   <button @click=${up(someUpdate)}>Click Me</button>
 ```

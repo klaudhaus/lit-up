@@ -10,7 +10,7 @@
  * @param element Where to render app - defaults to page body
  * @param bootstrap A function to run on app load to do any necessary model initialisation
  * @param logger { boolean | function } `true` to use console.log, or pass a custom logger function
- * @returns {Function} An factory function which returns event handlers that trigger view updates
+ * @returns {Function} A factory function which returns event handlers that trigger view updates
  */
 export const app = async ({
   model = {},
@@ -36,33 +36,41 @@ export const app = async ({
   const up = (update, data = {}, { doDefault = false } = {}) => async event => {
     if (event && !doDefault) event.preventDefault()
 
-    const doRender = () => render(view({ up, model }), element)
+    const doUp = async ({ update, data, event, isChained = false }) => {
+      const doRender = () => render(view({ up, model }), element)
 
-    let isChained = false
-    while (typeof update === "function") {
+      // Do update and log
       const entry = {
         update, data, event, isChained, model,
         name: update.name,
         time: new Date().getTime()
       }
-      update = update(data, event)
+      let result = update(data, event)
       logger(entry)
-      if (update instanceof Promise) {
-        // Handle async updates
-        const renderAndWait = await Promise.all([doRender(), update])
+
+      // Handle async updates
+      if (result instanceof Promise) {
+        const renderAndWait = await Promise.all([doRender(), result])
         logger({ ...entry, ...{ time: new Date().getTime() } })
-        update = renderAndWait[1]
+        result = renderAndWait[1]
       }
-      if (typeof update === "object" && "update" in update) {
-        // Allow change of data and/or event within chain
-        data = update.data || data
-        event = update.event || event
-        update = update.update
-      }
-      isChained = true
+
+      await doRender()
+
+      // Handle chaining
+      const chain = { isChained: true }
+      const resultToArgs = update =>
+        typeof update === "function" ? { update, data, event, ...chain }
+          : typeof update === "object" && "update" in update
+            ? { ...{ data, event }, ...update, ...chain }
+            : false
+
+      if (Array.isArray(result)) {
+        await Promise.all(result.map(resultToArgs).filter(Boolean).map(doUp))
+      } else if (result) doUp(resultToArgs(result))
     }
 
-    return await doRender()
+    await doUp({ update, data, event })
   }
 
   await up(bootstrap)()
