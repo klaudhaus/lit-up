@@ -57,7 +57,7 @@ const view = ({ model, up }) => html`
   <button @click=${up(roll, model.dice)}> 
     Roll the Dice
   </button>
-	<p>Score: ${model.dice.score || "Ready"}</p>`
+  <p>Score: ${model.dice.score || "Ready"}</p>`
 ```
 
 Use `view` and `model` (along with the `render`  method from `lit-html`) to bootstrap the app.
@@ -156,12 +156,12 @@ The first is the value of `data` that was also provided to `up`, and can be used
 
 ```js
 const deleteItem = ({ items, item }) =>
-	items.splice(items.indexOf(item))
-	
+  items.splice(items.indexOf(item))
+  
 const itemListView = ({ items, up }) => html`
   <ul>${items.map(item => html`
     <li>${item.name}
-    	<button @click=${up(deleteItem, { items, item })}> X </button>
+      <button @click=${up(deleteItem, { items, item })}> X </button>
     </li>
   </ul>` 
 ```
@@ -170,7 +170,7 @@ The second parameter is the `event` object that triggered the update, as shown b
 
 ```js
 const setName = (person, event) =>
-	person.name = event.currentTarget.value
+  person.name = event.currentTarget.value
 
 const editPerson = ({ person, up }) => html`
   <input value=${person.name} @change=${up(setName, person)} />
@@ -185,12 +185,12 @@ If the update is an `async` function, or any function that returns a Promise, th
 
 ```js
 const loadArticleContent = async article =>
-	article.status = "Loading content..." 
-	// view will be rendered (with new status message) prior to first async call
+  article.status = "Loading content..." 
+  // view will be rendered (with new status message) prior to first async call
   const response = await fetch(article.contentUrl)
   article.content = await response.text()
-	article.status = "Ready"
-	// view is rendered again
+  article.status = "Ready"
+  // view is rendered again
 
 ```
 
@@ -202,10 +202,10 @@ If an update function returns another function, or the promise of another functi
 
 ```js
 const loadArticleHeadline = async article =>
-	article.status = "Loading headline..."
-	article.headline = await headlineService.fetch(article.id)
-	if (article.featured) {
-  	return loadArticleContent  
+  article.status = "Loading headline..."
+  article.headline = await headlineService.fetch(article.id)
+  if (article.featured) {
+    return loadArticleContent  
   } else article.status = "Ready"
 ```
 
@@ -295,7 +295,7 @@ app({ model, view, render, bootstrap: _ => up = _ })
 import { up } from "./myApp"
 
 export const component = value => html`
-	<h2>${value}</h2>
+  <h2>${value}</h2>
   <button @click=${up(someUpdate)}>Click Me</button>
 ```
 
@@ -317,7 +317,7 @@ app({ model, view, render })
 ```js
 \\ component.js
 export const component = (up, value) => html`
-	<h2>${value}</h2>
+  <h2>${value}</h2>
   <button @click=${up(someUpdate)}>Click Me</button>
 ```
 
@@ -337,7 +337,7 @@ app({ model, view, render })
 ```js
 \\ component.js
 export const component = ({ value, click }) => html`
-	<h2>${value}</h2>
+  <h2>${value}</h2>
   <button @click=${click}>Click Me</button>
 ```
 
@@ -352,10 +352,10 @@ import { WiredButton, WiredInput } from "wired-elements"
 
 const view = ({ model, up }) => html` 
   <wired-input placeholder="Name"
-		@change=${up(setName)}></wired-input>
+    @change=${up(setName)}></wired-input>
   <wired-button
-		@click=${up(greet, model.name)}>
-			Greet ${model.name}</wired-button>`
+    @click=${up(greet, model.name)}>
+      Greet ${model.name}</wired-button>`
 ```
 
 If you identify a generic component that is commonly reused across different projects and possibly other front-end frameworks, it is a good candidate to be implemented as a Web Component using a library such as `lit-element` or `haunted`. 
@@ -368,22 +368,22 @@ Fragment functions implement a component, or fragment of the view, as a single f
 
 ```js
 const contentButton = ({ label, content, click }) => html`
-	<button @click=${click}>
-		${label}
-		${content}
-	</button>`
+  <button @click=${click}>
+    ${label}
+    ${content}
+  </button>`
 
 const view = ({ model, up }) => html`
-	<div class="part-of-the-view">
+  <div class="part-of-the-view">
     ${contentButton({ 
       label: "User",
       content: html`<i class="user-icon" />`
       click: up(showUserProfile)
     })}
-		${contentButton({
+    ${contentButton({
       label: "News",
       content: html`<img src="news.png" />`
-			click: up(showNews)
+      click: up(showNews)
     })}
   </div>
 `
