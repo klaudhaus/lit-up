@@ -73,7 +73,7 @@ export const app = async ({
     await doUp({ update, data, event })
   }
 
-  await up(bootstrap)()
+  await up(bootstrap, up)()
 
   return up
 }

@@ -8,8 +8,8 @@
 
 * Lightweight (`lit-up` + `lit-html` < 4kB minified)
 * Fast (TODO: Benchmarks)
+* [`lit-html`](https://lit-html.polymer-project.org/) templates - real HTML, real JS
 * Develop with ES6 modules and no transpiling
-* `lit-html` templates - real HTML, real JS
 * Best practice one-way data flow architecture
 * Handles synchronous and asynchronous updates
 * Well-defined render points for async
@@ -17,7 +17,7 @@
 * Pluggable logging
 * Works great with web components
 * .. and without, using fragment functions
-* Scales to large, modular apps
+* Scales to large modular apps
 * Online Guides and Articles
 
 ### Quick Start
@@ -100,6 +100,8 @@ For production, you should bundle the application code along with dependencies u
 
 For a deeper dive into installation, module resolution, development flows and production builds setup see the [Online Guides](https://klaudhaus.com/lit-up/guides).
 
+
+
 ## API
 
 ### `app(options)`
@@ -108,7 +110,7 @@ The `app` method bootstraps an app with its specified configuration options, whi
 
 * `model`
 
-A reference to the model object that will be provided to the view function on each update. If not specified, defaults to an empty object.
+A reference to the application state model object that will be provided to the view function on each update. If not specified, defaults to an empty object.
 
 * `view`
 
@@ -116,11 +118,11 @@ A function that takes the keys `model`  and `up` and returns a view representati
 
 * `render`
 
-The `render` method from `lit-html` or an equivalent implementation. This is required, otherwise no rendering can take place. For tests, server-side rendering etc. a static renderer can be specified - see `lit-up-test.js` within this repository for an example.  
+The `render` method from `lit-html` or an equivalent implementation. This is required, otherwise no rendering can take place. For headless tests, server-side rendering etc. a static renderer such as `@popeindustries/lit-html-server` can be specified. See `lit-up-test.js` within this repository for an example.
 
 * `bootstrap`
 
-An initial update function that will be called with no data or event payload. As per normal updates, if bootstrap is an async function the view will be rendered on both the synchronous return of the promise itself (or before the first `await` in an `async` function) and upon promise resolution (or async function completion) - see [Asynchronous Updates](####Asynchronous Updates) for more information.
+An initial update function that will be called before the first view render. You cannot specify data or event parameters for the bootstrap function. It will receive a reference to the app's `up` function as its only argument. As per normal updates, if bootstrap is an async function the view will be rendered both before the first `await` and upon function completion. See [Asynchronous Updates](####Asynchronous Updates) for more information.
 
 * `log`
 
@@ -130,7 +132,7 @@ This can be a function with the signature `({update, data, event, model, name, t
 
 The location to render the app. If not specified, defaults to `document.body`. 
 
-The `app` function returns a reference to the app's `up` function, which is also passed to the main `view` fuction on each render. You can initialise multiple apps on a page as needed, by passing a different target `element` to each. Each app's `up` function will trigger re-rendering of just that app's view.
+The `app` function returns a reference to the app's `up` function, which is also passed to the `bootstrap` function, and to the main `view` fuction on each render. You can initialise multiple apps on a page as needed by passing a different target `element` to each. Each app's `up` function will trigger re-rendering of just that app's view.
 
 For more information on patterns to access `up` see [Application Structure](##Application Structure)
 
@@ -140,9 +142,9 @@ For more information on patterns to access `up` see [Application Structure](##Ap
 
 The `up` function prepares an event handler which will call the given `update` with the given `data` and rerender the app's view.
 
-The `options` object currently has one option:
+The `options` object has one option:
 
-* `doDefault` if set to `true` then the browser default action is also performed (such as submitting a form). Default is `false`.
+* `doDefault` if set to `true` then the default action for the DOM event (such as submitting a form) is also performed. Default is `false`.
 
 #### Update functions
 
@@ -164,7 +166,7 @@ const itemListView = ({ items, up }) => html`
   </ul>` 
 ```
 
-The second parameter is the `event` object that triggered the update, as shown below in the function that reads the value from a text input.
+The second parameter is the `event` object that triggered the update, as shown below in this function that reads the value from a text input.
 
 ```js
 const setName = (person, event) =>
@@ -187,12 +189,12 @@ const loadArticleContent = async article =>
 	// view will be rendered (with new status message) prior to first async call
   const response = await fetch(article.contentUrl)
   article.content = await response.text()
-	article.status = "Loaded"
+	article.status = "Ready"
 	// view is rendered again
 
 ```
 
-If you need to orchestrate a more complex sequence of updates you can use chained updates or call `up` directly.
+If you need to orchestrate a more complex sequence of updates you can use chained updates.
 
 #### Chained Updates
 
@@ -204,7 +206,7 @@ const loadArticleHeadline = async article =>
 	article.headline = await headlineService.fetch(article.id)
 	if (article.featured) {
   	return loadArticleContent  
-  }
+  } else article.status = "Ready"
 ```
 
 Alternatively, the next update may be returned as an object with the keys `update`, `data` and `event` to allow different update data to be passed along.
@@ -243,16 +245,16 @@ dataService.subscribe(data => {
   up(dataReceived, data)()
 })
 
-window.onresize = event => {
-  up(winResized, event)()
+window.onresize = () => {
+  up(winResized)()
 }
 ```
 
-However, in cases like above where the update functions can receive the original parameters, you can attach the `up` event handler directly.
+However, in cases like those above with no additional processing outside the update , you can attach the `up` event handler directly.
 
 ```js
 dataService.subscribe(up(dataReceived))
-window.onResize = up(winResized)
+window.onresize = up(winResized)
 ```
 
 
@@ -261,19 +263,31 @@ window.onResize = up(winResized)
 
 ### Accessing `up`
 
-There are two ways to access the `up` function - via the return value of `app` or as a key provided to `view`.
+There are three ways to access the `up` function - via the promised return value of `app`, as the argument to `bootstrap` or as a key provided to `view`.
 
-The *return value* of `app` is its related `up` function. It is thus possible to re-export this reference to `up` from your main bootstrapping module for access throughout the app. This can be useful in some situations, however it does tie other app modules specifically to this app, hindering reuse across different apps.
+##### Return from `app`
+
+The *return value* of `app` is a promise of its related `up` function. This can be useful in some circumstances, but means awaiting the return of the initial render promise, so should not be relied on for view components that need a reference to `up` during initial render.
+
+```
+app({ model, view, render }).then(up => window.onresize = up(winResized))
+```
+
+##### Argument to `bootstrap`
+
+The `bootstrap` function receives `up` as an argument, so can make it available at the time of initial render. This can seem more convenient than passing references to `up` around in the view, however the approach shown below does tie the component module specifically to one app, hindering reuse across different apps.
 
 ```js
 \\ myApp.js
 import { component } from "./component"
 
+export let up = null
+
 const view = ({ model }) => html`
   <h1>Title</h1>
   ${component(model.value)}`
 
-export const up = app({ model, view, render })
+app({ model, view, render, bootstrap: _ => up = _ })
 ```
 
 ```js
@@ -285,7 +299,9 @@ export const component = value => html`
   <button @click=${up(someUpdate)}>Click Me</button>
 ```
 
-The other alternative is to pass `up` through the application view functions as needed. This produces components that are more reusable and removes circular dependencies.
+##### Named parameter in `view`
+
+Another alternative is to pass `up` through the application view functions as needed. This produces components that are more reusable and removes circular dependencies.
 
 ```js
 \\ myApp.js
@@ -293,7 +309,7 @@ import { component } from "./component"
 
 const view = ({ model, up }) => html`
   <h1>Title</h1>
-  ${component(up, value)}`
+  ${component(up, model.value)}`
 
 app({ model, view, render })
 ```
@@ -305,7 +321,27 @@ export const component = (up, value) => html`
   <button @click=${up(someUpdate)}>Click Me</button>
 ```
 
-See [Fragment Functions](###Using Fragment Functions) for an example where a component accepts event handlers that are pre-wrapped with `up` hence avoiding the need to pass `up` itself.
+Most flexibly, the component could accept an argument that is a prepared event handler. It is then independent of how `up` is accessed in the broader application.
+
+```js
+\\ myApp.js
+import { component } from "./component"
+
+const view = ({ model, up }) => html`
+  <h1>Title</h1>
+  ${component({ value: model.value, click: up(someUpdate) })}`
+
+app({ model, view, render })
+```
+
+```js
+\\ component.js
+export const component = ({ value, click }) => html`
+	<h2>${value}</h2>
+  <button @click=${click}>Click Me</button>
+```
+
+This is the basis of splitting application views into [Fragment Functions](###Using Fragment Functions).
 
 ### Using Web Components
 
@@ -322,13 +358,13 @@ const view = ({ model, up }) => html`
 			Greet ${model.name}</wired-button>`
 ```
 
-If you identify a generic component that is commonly reused across different projects and possibly other front-end frameworks, it is a good candidate to be implemented as a Web Component, using a library such as `lit-element` or `haunted`. 
+If you identify a generic component that is commonly reused across different projects and possibly other front-end frameworks, it is a good candidate to be implemented as a Web Component using a library such as `lit-element` or `haunted`. 
 
 ### Using Fragment Functions
 
-If you wish to split up your application into smaller components for the purpose of clarity and organisation, rather than for reuse across different contexts and organisations, building them as Web Components may be overkill. Also, Web Components may not be the best choice for SVG applications as there are some compatibility problems with the SVG namespace.
+If you wish to split up your application view into smaller components for the purpose of clarity and organisation, rather than for reuse across different frameworks and organisations, building them as Web Components may be overkill. Also, Web Components may not be the best choice for SVG applications as there are some compatibility problems with the SVG namespace.
 
-Fragment functions implement a component, or fragment of the view, as a single function (which may itself call other fragment functions). It can be configured with data properties, event handlers and inner content.
+Fragment functions implement a component, or fragment of the view, as a single function (which may itself call other fragment functions) which can accept data properties, event handlers and inner content.
 
 ```js
 const contentButton = ({ label, content, click }) => html`
@@ -355,12 +391,12 @@ const view = ({ model, up }) => html`
 
 This helps to split up and organise the different levels of your application view. For more information see the [Online Guides](https://klaudhaus.com/lit-up/guides).
 
-#### Internal State
+##### Internal State
 
-What if a fragment should have some inner state that is of no concern to its containing application? One example would be a container that implements transitions between different pages in a navigation model. The containing app should only concern itself with the overall list of pages and which one is currently displayed, whilst the component itself stores both the last selected page and the current one during the transition display. With some imagination this can be approached with fragments, such as by maintaining a state object for each fragment instance within the view model or using an identifer from the model as a key to hold internal state in a module-level WeakMap. However, this is a good example of when it may well make sense to implement a Web Component, or rethink the overall design.
+What if a fragment should have some inner state that is of no concern to its containing application? One example would be a container that implements transitions between different pages in a navigation model. The containing app should only concern itself with the overall list of pages and which one is currently displayed, whilst the component itself stores both the last selected page and the current one during the transition display. This could be approached with fragments, such as by maintaining a state object for each fragment instance within the view model or using an identifer from the model as a key to hold internal state in a module-level WeakMap. However, this is a good example of when it may well make sense to implement a Web Component, or rethink the overall design.
 
 ### Model and Update Patterns
 
-There are various modular ways in which the model object and update functions can be structured as your application grows, ranging from Object Oriented to more Functional approaches. Find out more about these options, including the practices adopted at Klaudhaus, in the [Online Guides](https://klaudhaus.com/lit-up/guides).
+There are various modular ways in which the model object and update functions can be structured as your application grows, ranging from Object Oriented to more Functional approaches. Find out more about these options in the [Online Guides](https://klaudhaus.com/lit-up/guides).
 
 
