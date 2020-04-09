@@ -1,6 +1,6 @@
 {
   "name": "@klaudhaus/lit-up",
-  "version": "0.1.11",
+  "version": "1.0.0-alpha-7",
   "description": "A quick way to get up and running with `lit-html` templating and a reactive data flow",
   "main": "lit-up.js",
   "module": "lit-up.js",
@@ -14,11 +14,8 @@
   "author": "tstewart@klaudhaus.com",
   "repository": "github:klaudhaus/lit-up",
   "license": "MIT",
-  "dependencies": {
-    "lit-html": "^1.1.2"
-  },
   "devDependencies": {
-    "@popeindustries/lit-html-server": "^1.6.0",
+    "@popeindustries/lit-html-server": "^3.0.0",
     "chai": "^4.2.0",
     "es-dev-server": "^1.26.1",
     "eslint": "^6.7.1",
@@ -28,7 +25,7 @@
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^4.0.1",
     "esm": "^3.2.25",
-    "mocha": "^6.2.2",
-    "np": "^5.1.3"
+    "lit-html": "^1.2.1",
+    "mocha": "^6.2.2"
   }
 }

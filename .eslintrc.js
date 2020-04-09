@@ -24,6 +24,9 @@ module.exports = {
       // await functions that may or may not be asynchronous
       "no-return-await": 0,
       // instantiate updates if it is a class constructor
-      "new-cap": 0
+      "new-cap": 0,
+
+      // ok to group value-by-name properties on on line before others
+      "object-property-newline": "off"
     }
 };
