@@ -289,7 +289,7 @@ The `bootstrap` function receives `up` as an argument, so can make it available 
 \\ myApp.js
 import { component } from "./component"
 
-export let up = null
+export let up
 
 const view = ({ model }) => html`
   <h1>Title</h1>
