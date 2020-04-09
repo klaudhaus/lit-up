@@ -6,8 +6,7 @@
 
 ### Features
 
-* Lightweight (`lit-up` + `lit-html` < 4kB minified)
-* Fast (TODO: Benchmarks)
+* Fast and Lightweight (`lit-up` + `lit-html` < 4kB minified)
 * [`lit-html`](https://lit-html.polymer-project.org/) templates - real HTML, real JS
 * Develop with ES6 modules and no transpiling
 * Best practice one-way reactive data flow architecture
@@ -18,7 +17,6 @@
 * Works great with web components
 * .. and without, using fragment functions
 * Scales to large modular apps
-* Online Guides and Articles
 
 ### Quick Start
 
@@ -97,8 +95,6 @@ import { app } from "@klaudhaush/lit-up"
 ```
 
 For production, you should bundle the application code along with dependencies using a tool like `rollup`.
-
-For a deeper dive into installation, module resolution, development flows and production builds setup see the [Online Guides](https://klaudhaus.com/lit-up/guides).
 
 ##### Sample App
 
@@ -397,14 +393,6 @@ const view = ({ model, up }) => html`
 `
 ```
 
-This helps to split up and organise the different levels of your application view. For more information see the [Online Guides](https://klaudhaus.com/lit-up/guides).
-
 ##### Internal State
 
 What if a fragment should have some inner state that is of no concern to its containing application? One example would be a container that implements transitions between different pages in a navigation model. The containing app should only concern itself with the overall list of pages and which one is currently displayed, whilst the component itself stores both the last selected page and the current one during the transition display. This could be approached with fragments, such as by maintaining a state object for each fragment instance within the view model or using an identifer from the model as a key to hold internal state in a module-level WeakMap. However, this is a good example of when it may well make sense to implement a Web Component, or rethink the overall design.
-
-### Model and Update Patterns
-
-There are various modular ways in which the model object and update functions can be structured as your application grows, ranging from Object Oriented to more Functional approaches. Find out more about these options in the [Online Guides](https://klaudhaus.com/lit-up/guides).
-
-
