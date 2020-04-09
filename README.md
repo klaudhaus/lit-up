@@ -10,7 +10,7 @@
 * Fast (TODO: Benchmarks)
 * [`lit-html`](https://lit-html.polymer-project.org/) templates - real HTML, real JS
 * Develop with ES6 modules and no transpiling
-* Best practice one-way data flow architecture
+* Best practice one-way reactive data flow architecture
 * Handles synchronous and asynchronous updates
 * Well-defined render points for async
 * Update chaining
@@ -89,7 +89,7 @@ npm install --save-dev es-dev-server
 es-dev-server --open --watch --node-resolve 
 ```
 
-`es-dev-server` will open your project's index.html page on http://localhost:8080, will reload it whenever you make changes and will link "naked imports" like those below to the appropriate location within `node_modules`.
+`es-dev-server` will open your project's index.html page on http://localhost:8080, reload it whenever you make changes and link "naked imports" like those below to the appropriate location within `node_modules`.
 
 ```js
 import { html, render } from "lit-html"
@@ -99,6 +99,14 @@ import { app } from "@klaudhaush/lit-up"
 For production, you should bundle the application code along with dependencies using a tool like `rollup`.
 
 For a deeper dive into installation, module resolution, development flows and production builds setup see the [Online Guides](https://klaudhaus.com/lit-up/guides).
+
+##### Sample App
+
+There is a small sample app in the `examples` folder of this repository. Once you have installed `lit-up` locally in your project, you can run the sample app using the following command.
+
+```bash
+lit-up-examples
+```
 
 
 
@@ -114,7 +122,7 @@ A reference to the application state model object that will be provided to the v
 
 * `view`
 
-A function that takes the keys `model`  and `up` and returns a view representation of that model as a `lit-html` template result with events handled via `up`. If not specified defaults to a view function that returns the text "No view specified".
+A function that takes the keys `model`  and `up` and returns a view representation of that model as a `lit-html` template result with events handled via `up`. If not specified defaults to a view function that displays the text "No view specified".
 
 * `render`
 

@@ -1,6 +1,7 @@
 // A simple app showing examples of using lit-up
 
-import { html, app, up } from "../lit-up.js"
+import { app } from "../lit-up.js"
+import { render, html } from "lit-html"
 import { classMap } from "lit-html/directives/class-map"
 
 // Create a promise of a short delay
@@ -19,48 +20,47 @@ const model = {
 }
 
 // User actions that may update the data model
-const updates = {
-  // Example of an action that reads event data
-  mirrorValue (data, evt) {
-    model.inputText = evt.target.value
-  },
 
-  // Example of an action with an asynchronous result
-  async fetchData () {
-    model.remoteData = "Fetching remote data now..."
-    return "continueFetchData"
-  },
+// Example of an action that reads event data
+function mirrorValue (data, evt) {
+  model.inputText = evt.target.value
+}
 
-  async continueFetchData () {
-    await wait(1000)
-    const response = await fetch("data.json")
-    const data = await response.json()
-    model.remoteData = data.value
-  },
+// Example of an action with an asynchronous result
+async function fetchData () {
+  model.remoteData = "Fetching remote data now..."
+  return continueFetchData
+}
 
-  // Example of an action with attached data
-  select (option) {
-    model.selectedOption = option
-  }
+async function continueFetchData () {
+  await wait(1000)
+  const response = await fetch("data.json")
+  const data = await response.json()
+  model.remoteData = data.value
+}
+
+// Example of an action with attached data
+function select (option) {
+  model.selectedOption = option
 }
 
 // UI for an entry field with mirrored value
 const inputView = model => html`
   <h2>Mirror value from input field</h2>
-  <input type="text" @input=${up("mirrorValue")}/>
+  <input type="text" @input=${up(mirrorValue)}/>
   <p> ${model.inputText || "No input value entered"} </p>
 `
 
 // UI for a data fetch and display
 const fetchView = model => html`
   <h2>Fetch remote data</h2>
-  <button @click=${up("fetchData")}>Fetch</button>
+  <button @click=${up(fetchData)}>Fetch</button>
   <p> ${model.remoteData || "No data fetched yet"} </p>
 `
 
 // UI for a selection between options
 const optionView = (option, selected) => html`
-  <li @click=${up("select", option)}
+  <li @click=${up(select, option)}
       class="${classMap({ selected })}" >
       ${option.label}
   </li>
@@ -72,11 +72,14 @@ const highlightView = model => html`
 `
 
 // UI that contains all examples
-const view = model => html`
+const view = ({ model }) => html`
   <h1>lit-up examples</h1>
   ${inputView(model)}
   ${fetchView(model)}
   ${highlightView(model)}
 `
+// Use a simple pattern for accessing `up` as an arg to `bootstrap`
+let up
 
-app({ model, view, updates, logger: true })
+// Launch the app
+app({ model, view, render, bootstrap: x => { up = x }, logger: true })
