@@ -6,8 +6,8 @@
 
 ### Features
 
-* Fast and Lightweight (`lit-up` + `lit-html` < 4kB minified)
 * [`lit-html`](https://lit-html.polymer-project.org/) templates - real HTML, real JS
+* Fast and Lightweight (`lit-up` + `lit-html` < 4kB minified)
 * Develop with ES6 modules and no transpiling
 * Best practice one-way reactive data flow architecture
 * Handles synchronous and asynchronous updates
@@ -87,7 +87,7 @@ npm install --save-dev es-dev-server
 es-dev-server --open --watch --node-resolve 
 ```
 
-`es-dev-server` will open your project's index.html page on http://localhost:8080, reload it whenever you make changes and link "naked imports" like those below to the appropriate location within `node_modules`.
+`es-dev-server` will open your app's page on http://localhost:8080, reload it whenever you make changes and link "naked imports" like those below to the appropriate location within `node_modules`.
 
 ```js
 import { html, render } from "lit-html"
@@ -273,7 +273,7 @@ There are three ways to access the `up` function - via the promised return value
 
 The *return value* of `app` is a promise of its related `up` function. This can be useful in some circumstances, but means awaiting the return of the initial render promise, so should not be relied on for view components that need a reference to `up` during initial render.
 
-```
+```js
 app({ model, view, render }).then(up => window.onresize = up(winResized))
 ```
 
@@ -368,7 +368,7 @@ If you identify a generic component that is commonly reused across different pro
 
 If you wish to split up your application view into smaller components for the purpose of clarity and organisation, rather than for reuse across different frameworks and organisations, building them as Web Components may be overkill. Also, Web Components may not be the best choice for SVG applications as there are some compatibility problems with the SVG namespace.
 
-Fragment functions implement a component, or fragment of the view, as a single function (which may itself call other fragment functions) which can accept data properties, event handlers and inner content.
+Fragment functions implement a component, or fragment of the view, as a single function (which may itself call other fragment functions). They can accept data properties, event handlers and inner content.
 
 ```js
 const contentButton = ({ label, content, click }) => html`
