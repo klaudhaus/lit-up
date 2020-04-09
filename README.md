@@ -128,7 +128,7 @@ The `render` method from `lit-html` or an equivalent implementation. This is req
 
 An initial update function that will be called before the first view render. You cannot specify data or event parameters for the bootstrap function. It will receive a reference to the app's `up` function as its only argument. As per normal updates, if bootstrap is an async function the view will be rendered both before the first `await` and upon function completion. See [Asynchronous Updates](####Asynchronous Updates) for more information.
 
-* `log`
+* `logger`
 
 This can be a function with the signature `({update, data, event, model, name, time, isChained})` that receives details of each update, or the boolean value `true` to use `console.log` as the logger function. If not supplied, logging is off by default.
 
