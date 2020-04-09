@@ -67,7 +67,7 @@ export const app = async ({
 
       if (Array.isArray(result)) {
         await Promise.all(result.map(resultToArgs).filter(Boolean).map(doUp))
-      } else if (result) doUp(resultToArgs(result))
+      } else if (result) await doUp(resultToArgs(result))
     }
 
     await doUp({ update, data, event })
