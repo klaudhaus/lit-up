@@ -23,12 +23,8 @@ describe("lit-up", () => {
 
   describe("rendering", () => {
     it("should render a warning if no view supplied", async () => {
-      await app({
-        render (val) {
-          // Supply custom renderer due to https://github.com/popeindustries/lit-html-server/issues/125
-          val.should.equal("lit-up: No view specified")
-        }
-      })
+      await app({ render })
+      document.body.should.equal("lit-up: No view specified")
     })
 
     it("should render a simple view with no model", async () => {
