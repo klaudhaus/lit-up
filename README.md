@@ -163,7 +163,7 @@ The first is the value of `data` that was also provided to `up`, and can be used
 
 ```js
 const deleteItem = ({ items, item }) =>
-  items.splice(items.indexOf(item))
+  items.splice(items.indexOf(item), 1)
   
 const itemListView = ({ items, up }) => html`
   <ul>${items.map(item => html`

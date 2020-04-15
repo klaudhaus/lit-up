@@ -12,7 +12,7 @@
 const { createConfig, startServer } = require("es-dev-server")
 
 const config = createConfig({
-  open: "node_modules/@klaudhaus/lit-up/examples/",
+  open: "node_modules/lit-up/examples/",
   nodeResolve: true
 })
 
