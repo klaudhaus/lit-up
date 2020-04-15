@@ -1,6 +1,9 @@
+
+![lit-up logo](./doc/lit-up-logo.jpg)
+
 # lit-up
 
-> Build web apps the light way
+> Build web apps the _light_ way
 
 `lit-up` is a minimal yet scalable state pattern for front-end web apps that use `lit-html` templates.
 
@@ -20,16 +23,16 @@
 
 ### Quick Start
 
-Import modules. You can use the CDN links shown below or [install locally](#Installation).
+These are the basic steps to make a `lit-up` application in a file called `index.js`.
+
+* Import modules. You can use the CDN links shown below or [install locally](#Installation).
 
 ```js
-import { render, html } from
-  "https://cdn.pika.dev/lit-html"
-import { app } from
-  "https://cdn.pika.dev/@klaudhaus/lit-up"
+import { html, render } from "https://cdn.pika.dev/lit-html"
+import { app } from "https://cdn.pika.dev/lit-up"
 ```
 
-Declare an initial state for an application `model`.
+* Declare an initial state for an application `model`.
 
 ```js
 const model = {
@@ -40,14 +43,14 @@ const model = {
 }
 ```
 
-Provide functions for model updates.
+* Make functions for any model updates.
 
 ```js
 const roll = dice =>
   dice.score = Math.ceil(Math.random() * 6)
 ```
 
-Create a `view` function that displays the `model` and uses  `up` to link events to your update functions.
+* Create a `view` function that displays the `model` and uses  `up` to link user actions to your update functions.
 
 ```js
 const view = ({ model, up }) => html`
@@ -58,13 +61,13 @@ const view = ({ model, up }) => html`
   <p>Score: ${model.dice.score || "Ready"}</p>`
 ```
 
-Use `view` and `model` (along with the `render`  method from `lit-html`) to bootstrap the app.
+* Pass `view` and `model` (along with the `render`  method from `lit-html`) to bootstrap the `app`.
 
 ```js
 app ({ view, model, render })
 ```
 
-Add it as a module to a page.
+Then load `index.js` as a module in a HTML page.
 
 ```html
 <script src="index.js" type="module" />
@@ -77,7 +80,7 @@ And you have an interactive web app.
 You can use the CDN links shown in the Quick Start, or install the modules locally:
 
 ```bash
-npm install lit-html @klaudhaus/lit-up
+npm install lit-html lit-up
 ```
 
 We suggest using `es-dev-server` to provide automatic ES6 module resolution using the NodeJS algorithm during development.
@@ -91,12 +94,12 @@ es-dev-server --open --watch --node-resolve
 
 ```js
 import { html, render } from "lit-html"
-import { app } from "@klaudhaush/lit-up"
+import { app } from "lit-up"
 ```
 
 For production, you should bundle the application code along with dependencies using a tool like `rollup`.
 
-##### Sample App
+### Sample App
 
 There is a small sample app in the `examples` folder of this repository. Once you have installed `lit-up` locally in your project, you can run the sample app using the following command.
 
@@ -254,10 +257,9 @@ window.onresize = () => {
 }
 ```
 
-However, in cases like those above with no additional processing outside the update , you can attach the `up` event handler directly.
+In cases where no additional processing is required outside the update , you can attach the `up` event handler directly.
 
 ```js
-dataService.subscribe(up(dataReceived))
 window.onresize = up(winResized)
 ```
 
@@ -271,7 +273,7 @@ There are three ways to access the `up` function - via the promised return value
 
 ##### Return from `app`
 
-The *return value* of `app` is a promise of its related `up` function. This can be useful in some circumstances, but means awaiting the return of the initial render promise, so should not be relied on for view components that need a reference to `up` during initial render.
+The return value of `app` is a promise of its related `up` function. This can be useful in some circumstances, but means awaiting the return of the initial render promise, so should not be relied on for view components that need a reference to `up` during initial render.
 
 ```js
 app({ model, view, render }).then(up => window.onresize = up(winResized))
@@ -279,7 +281,7 @@ app({ model, view, render }).then(up => window.onresize = up(winResized))
 
 ##### Argument to `bootstrap`
 
-The `bootstrap` function receives `up` as an argument, so can make it available at the time of initial render. This can seem more convenient than passing references to `up` around in the view, however the approach shown below does tie the component module specifically to one app, hindering reuse across different apps.
+The `bootstrap` function receives `up` as an argument and can make it available prior to the initial render. This can seem more convenient than passing references to `up` around in the view, however the approach shown below does tie the component module specifically to one app, hindering reuse across different apps.
 
 ```js
 \\ myApp.js
@@ -349,7 +351,7 @@ This is the basis of splitting application views into [Fragment Functions](###Us
 
 ### Using Web Components
 
-You can use any standards-compliant Web Component within `lit-up` apps by installing it as per its own documentation and then using the appropriate tag name and setting its attributes, properties and event handlers (using `up`) accordingly.
+You can use any standards-compliant Web Component in `lit-up` by installing it in your app as per its own documentation and then using the appropriate tag name and setting its attributes, properties and event handlers (using `up`) accordingly.
 
 ```js
 import { WiredButton, WiredInput } from "wired-elements"
@@ -392,7 +394,3 @@ const view = ({ model, up }) => html`
   </div>
 `
 ```
-
-##### Internal State
-
-What if a fragment should have some inner state that is of no concern to its containing application? One example would be a container that implements transitions between different pages in a navigation model. The containing app should only concern itself with the overall list of pages and which one is currently displayed, whilst the component itself stores both the last selected page and the current one during the transition display. This could be approached with fragments, such as by maintaining a state object for each fragment instance within the view model or using an identifer from the model as a key to hold internal state in a module-level WeakMap. However, this is a good example of when it may well make sense to implement a Web Component, or rethink the overall design.
