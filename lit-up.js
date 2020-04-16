@@ -45,7 +45,7 @@ export const app = async ({
         name: update.name,
         time: new Date().getTime()
       }
-      let result = update(data, event)
+      let result = update ? update(data, event) : false
       logger(entry)
 
       // Handle async updates
@@ -66,8 +66,12 @@ export const app = async ({
             : false
 
       if (Array.isArray(result)) {
-        await Promise.all(result.map(resultToArgs).filter(Boolean).map(doUp))
-      } else if (result) await doUp(resultToArgs(result))
+        for (const args of result.map(resultToArgs).filter(Boolean)) {
+          await doUp(args)
+        }
+      } else if (result) {
+        await doUp(resultToArgs(result))
+      }
     }
 
     await doUp({ update, data, event })
