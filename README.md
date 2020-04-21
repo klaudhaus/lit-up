@@ -10,7 +10,7 @@
 ### Features
 
 * [`lit-html`](https://lit-html.polymer-project.org/) templates - real HTML, real JS
-* Fast and Lightweight (`lit-up` + `lit-html` < 4kB minified)
+* Fast and lightweight (`lit-up` + `lit-html` < 4kB minified)
 * Develop with ES6 modules and no transpiling
 * Best practice one-way reactive data flow architecture
 * Handles synchronous and asynchronous updates
@@ -46,8 +46,9 @@ const model = {
 * Make functions for any model updates.
 
 ```js
-const roll = dice =>
+const roll = dice => {
   dice.score = Math.ceil(Math.random() * 6)
+}
 ```
 
 * Create a `view` function that displays the `model` and uses  `up` to link user actions to your update functions.
@@ -163,22 +164,24 @@ The update functions provided to `up` can accept up to two parameters.
 The first is the value of `data` that was also provided to `up`, and can be used to provide application model references from the view, such as the item to delete in the following example.
 
 ```js
-const deleteItem = ({ items, item }) =>
+function deleteItem ({ items, item }) {
   items.splice(items.indexOf(item), 1)
+}
   
 const itemListView = ({ items, up }) => html`
   <ul>${items.map(item => html`
     <li>${item.name}
       <button @click=${up(deleteItem, { items, item })}> X </button>
     </li>
-  </ul>` 
+  </ul>`      
 ```
 
 The second parameter is the `event` object that triggered the update, as shown below in this function that reads the value from a text input.
 
 ```js
-const setName = (person, event) =>
+function setName (person, event) {
   person.name = event.currentTarget.value
+}
 
 const editPerson = ({ person, up }) => html`
   <input value=${person.name} @change=${up(setName, person)} />
@@ -192,14 +195,14 @@ It is best if update functions provided to `up` have meaningful names as these w
 If the update is an `async` function, or any function that returns a Promise, then `lit-up` will re-render the view on both the synchronous return of the promise as well as when the promise is finally resolved. In general for an `async` function, this means before the first `await` and also at the conclusion of the entire function. This enables orchestration of view states before and after the completion of an async operation.
 
 ```js
-const loadArticleContent = async article =>
+async function loadArticleContent (article) {
   article.status = "Loading content..." 
-  // view will be rendered (with new status message) prior to first async call
+  // New status message is rendered prior to first await
   const response = await fetch(article.contentUrl)
   article.content = await response.text()
   article.status = "Ready"
-  // view is rendered again
-
+  // Render again with content and new status
+}
 ```
 
 If you need to orchestrate a more complex sequence of updates you can use chained updates.
@@ -209,23 +212,27 @@ If you need to orchestrate a more complex sequence of updates you can use chaine
 If an update function returns another function, or the promise of another function, then that function is processed as a new update, and the original `data` and `event` values are passed along the chain. This can be used for example to orchestrate chains of multiple asynchronous updates, possibly with conditional logic. 
 
 ```js
-const loadArticleHeadline = async article =>
-  article.status = "Loading headline..."
+async function loadArticleHeadline (article) {
+  article.status = "Loading headline..." // Render before await
   article.headline = await headlineService.fetch(article.id)
   if (article.featured) {
-    return loadArticleContent  
-  } else article.status = "Ready"
+    return loadArticleContent // Perform the next update in the chain
+  } else {
+    article.status = "Ready" // No further updates
+  }
+}
 ```
 
 Alternatively, the next update may be returned as an object with the keys `update`, `data` and `event` to allow different update data to be passed along.
 
 ```js
-const nextArticle = async articles, id =>
+async function nextArticle ({ articles, id }) {
   articles.push({ status: "Loading next article..." })
   const article = await articleService.fetch(id)
   articles.pop()
   articles.push(article)
   return { update: loadArticleHeadline, data: article }
+}
 ```
 
 A sequence of several subsequent updates can be specified via an array of functions or `{update, data, event}` objects. In the following example, the `stageOne` update will be called with `someData`, the `wait` update will cause a half-second delay, and the `stageTwo` update will be called with `innerValue` as its data argument.
@@ -294,7 +301,7 @@ const view = ({ model }) => html`
   <h1>Title</h1>
   ${component(model.value)}`
 
-app({ model, view, render, bootstrap: _ => up = _ })
+app({ model, view, render, bootstrap: x => up = x })
 ```
 
 ```js
@@ -303,7 +310,7 @@ import { up } from "./myApp"
 
 export const component = value => html`
   <h2>${value}</h2>
-  <button @click=${up(someUpdate)}>Click Me</button>
+  <button @click=${up(someUpdate)}>Click Me</button>`
 ```
 
 ##### Named parameter in `view`
@@ -325,7 +332,7 @@ app({ model, view, render })
 \\ component.js
 export const component = (up, value) => html`
   <h2>${value}</h2>
-  <button @click=${up(someUpdate)}>Click Me</button>
+  <button @click=${up(someUpdate)}>Click Me</button>`
 ```
 
 Most flexibly, the component could accept an argument that is a prepared event handler. It is then independent of how `up` is accessed in the broader application.
@@ -345,7 +352,7 @@ app({ model, view, render })
 \\ component.js
 export const component = ({ value, click }) => html`
   <h2>${value}</h2>
-  <button @click=${click}>Click Me</button>
+  <button @click=${click}>Click Me</button>`
 ```
 
 This is the basis of splitting application views into [Fragment Functions](###using-fragment-functions).
@@ -392,6 +399,5 @@ const view = ({ model, up }) => html`
       content: html`<img src="news.png" />`
       click: up(showNews)
     })}
-  </div>
-`
+  </div>`
 ```
