@@ -17,16 +17,13 @@ module.exports = {
         "sourceType": "module"
     },
     "rules": {
-      // General preference - prefer double quotes
+      // prefer double quotes
       "quotes": [2, "double"],
-
-      // lit-up specific cases
+      // ok to group value-by-name properties on one line before others
+      "object-property-newline": "off",
       // await functions that may or may not be asynchronous
       "no-return-await": 0,
       // instantiate updates if it is a class constructor
-      "new-cap": 0,
-
-      // ok to group value-by-name properties on on line before others
-      "object-property-newline": "off"
+      "new-cap": 0
     }
 };
