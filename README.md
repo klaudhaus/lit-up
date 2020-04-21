@@ -25,7 +25,7 @@
 
 These are the basic steps to make a `lit-up` application in a file called `index.js`.
 
-* Import modules. You can use the CDN links shown below or [install locally](#Installation).
+* Import modules. You can use the CDN links shown below or [install locally](#installation).
 
 ```js
 import { html, render } from "https://cdn.pika.dev/lit-html"
@@ -129,7 +129,7 @@ The `render` method from `lit-html` or an equivalent implementation. This is req
 
 * `bootstrap`
 
-An initial update function that will be called before the first view render. You cannot specify data or event parameters for the bootstrap function. It will receive a reference to the app's `up` function as its only argument. As per normal updates, if bootstrap is an async function the view will be rendered both before the first `await` and upon function completion. See [Asynchronous Updates](####Asynchronous Updates) for more information.
+An initial update function that will be called before the first view render. You cannot specify data or event parameters for the bootstrap function. It will receive a reference to the app's `up` function as its only argument. As per normal updates, if bootstrap is an async function the view will be rendered both before the first `await` and upon function completion. See [Asynchronous Updates](####asynchronous-updates) for more information.
 
 * `logger`
 
@@ -141,17 +141,18 @@ The location to render the app. If not specified, defaults to `document.body`.
 
 The `app` function returns a reference to the app's `up` function, which is also passed to the `bootstrap` function, and to the main `view` fuction on each render. You can initialise multiple apps on a page as needed by passing a different target `element` to each. Each app's `up` function will trigger re-rendering of just that app's view.
 
-For more information on patterns to access `up` see [Application Structure](##Application Structure)
+For more information on patterns to access `up` see [Application Structure](##application-structure)
 
 
 
 ### `up(update, data, options)`
 
-The `up` function prepares an event handler which will call the given `update` with the given `data` and rerender the app's view.
+The `up` function prepares an event handler which will call the given `update` function with the given `data` value and rerender the app's view.
 
-The `options` object has one option:
+By default, the `up` handler limits event processing to the provided `update` function and any resulting update chain, but this behaviour can be changed using properties on the  `options` object.
 
-* `doDefault` if set to `true` then the default action for the DOM event (such as submitting a form) is also performed. Default is `false`.
+* `doDefault` if set to `true` then any default browser action for the DOM event (such as submitting a form) is also performed. Default is `false`.
+* `propagate` if set to `true` then the event will continue to propagate to parent containers and trigger their event handlers. Default is `false`.
 
 #### Update functions
 
@@ -347,7 +348,7 @@ export const component = ({ value, click }) => html`
   <button @click=${click}>Click Me</button>
 ```
 
-This is the basis of splitting application views into [Fragment Functions](###Using Fragment Functions).
+This is the basis of splitting application views into [Fragment Functions](###using-fragment-functions).
 
 ### Using Web Components
 

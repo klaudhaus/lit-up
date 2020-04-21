@@ -30,11 +30,15 @@ export const app = async ({
    * Use from elsewhere like `up(messageReceived, message)()`.
    * @param update A function which will update the model
    * @param data update-related data
-   * @param doDefault If specified as true, default event handling will execute. Defaults to false.
+   * @param doDefault Perform browser default event action. Defaults to false.
+   * @param propagate Propagate this event to containing element for further handling. Defaults to false.
    * @returns {Function} An event handler suitable for use in `lit-html` templates.
    */
-  const up = (update, data = {}, { doDefault = false } = {}) => async event => {
-    if (event && !doDefault) event.preventDefault()
+  const up = (update, data = {}, { doDefault = false, propagate = false } = {}) => async event => {
+    if (event) {
+      if (!doDefault) event.preventDefault()
+      if (!propagate) event.stopPropagation()
+    }
 
     const doUp = async ({ update, data, event, isChained = false }) => {
       const doRender = () => render(view({ up, model }), element)
