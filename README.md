@@ -277,7 +277,7 @@ window.onresize = up(winResized)
 
 ### Accessing `up`
 
-There are three ways to access the `up` function - via the promised return value of `app`, as the argument to `bootstrap` or as a key provided to `view`.
+There are three ways to access the `up` function - via the promised return value of `app`, as a key provided to `view` or as the argument to `bootstrap`.
 
 ##### Return from `app`
 
@@ -287,38 +287,11 @@ The return value of `app` is a promise of its related `up` function. This can be
 app({ model, view, render }).then(up => window.onresize = up(winResized))
 ```
 
-##### Argument to `bootstrap`
-
-The `bootstrap` function receives `up` as an argument and can make it available prior to the initial render. This can seem more convenient than passing references to `up` around in the view, however the approach shown below does tie the component module specifically to one app, hindering reuse across different apps.
-
-```js
-\\ myApp.js
-import { component } from "./component"
-
-export let up
-
-const view = ({ model }) => html`
-  <h1>Title</h1>
-  ${component(model.value)}`
-
-app({ model, view, render, bootstrap: x => up = x })
-```
-
-```js
-\\ component.js
-import { up } from "./myApp"
-
-export const component = value => html`
-  <h2>${value}</h2>
-  <button @click=${up(someUpdate)}>Click Me</button>`
-```
-
 ##### Named parameter in `view`
 
-Another alternative is to pass `up` through the application view functions as needed. This produces components that are more reusable and removes circular dependencies.
+The `up` function is provided to `view` on each render. This can be used for simple apps with a single view function, or for more complex apps with views split across different functions where the `up` function can be passed onwards as necessary.
 
 ```js
-\\ myApp.js
 import { component } from "./component"
 
 const view = ({ model, up }) => html`
@@ -335,7 +308,7 @@ export const component = (up, value) => html`
   <button @click=${up(someUpdate)}>Click Me</button>`
 ```
 
-Most flexibly, the component could accept an argument that is a prepared event handler. It is then independent of how `up` is accessed in the broader application.
+More flexibly, the component could accept an argument that is a prepared event handler. It is then independent of how `up` is accessed in the broader application.
 
 ```js
 \\ myApp.js
@@ -355,7 +328,23 @@ export const component = ({ value, click }) => html`
   <button @click=${click}>Click Me</button>`
 ```
 
-This is the basis of splitting application views into [Fragment Functions](###using-fragment-functions).
+##### Argument to `bootstrap`
+
+The `bootstrap` function receives `up` as an argument and can make it available prior to the initial render. This can seem more convenient than passing references to `up` around in the view, but the question arises how to publish `up` for consumption by view fragments. If exposed on the app module itself, components that import it will be coupled tightly to the app and not be reusable. Assigning to the global `window` object could lead to conflicts or leaks with other page code.
+
+In order to resolve this problem - as well as produce components that can be used agnostically with other `lit-html` compatbile implementations - check out the [`lit-imp`](https://github.com/klaudhaus/lit-imp) package. This can be set up with:
+
+```js
+import { html } from "lit-html"
+import { up } from "lit-up"
+import { litImp } from "lit-imp"
+
+function bootstrap (up) { 
+  litImp ({ html, up })
+}
+```
+
+Following this, `up` can be imported in any view fragment module along with `html` directly from `lit-imp`.
 
 ### Using Web Components
 
