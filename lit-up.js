@@ -46,7 +46,7 @@ export const app = async ({
       // Do update and log
       const entry = {
         update, data, event, isChained, model,
-        name: update.name,
+        name: update ? update.name : "",
         time: new Date().getTime()
       }
       let result = update ? update(data, event) : false
@@ -73,7 +73,7 @@ export const app = async ({
         for (const args of result.map(resultToArgs).filter(Boolean)) {
           await doUp(args)
         }
-      } else if (result) {
+      } else if (["function", "object"].includes(typeof result)) {
         await doUp(resultToArgs(result))
       }
     }
