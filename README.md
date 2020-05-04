@@ -3,27 +3,22 @@
 
 # lit-up
 
-> Build web apps the _light_ way
-
-`lit-up` is a minimal yet scalable state pattern for front-end web apps that use `lit-html` templates.
+>  Minimal yet scalable state pattern for interactive web apps with [`lit-html`](https://lit-html.polymer-project.org/) templates
 
 ### Features
 
-* [`lit-html`](https://lit-html.polymer-project.org/) templates - real HTML, real JS
 * Fast and lightweight (`lit-up` + `lit-html` < 4kB minified)
-* Develop with ES6 modules and no transpiling
 * Best practice one-way reactive data flow architecture
 * Handles synchronous and asynchronous updates
 * Well-defined render points for async
 * Update chaining
 * Pluggable logging
-* Works great with web components
-* .. and without, using fragment functions
-* Scales to large modular apps
 
 ### Quick Start
 
-These are the basic steps to make a `lit-up` application in a file called `index.js`.
+The easiest way to set up `lit-up` is via [`lit-app`](https://github.com/klaudhaus/lit-app).
+
+But here we show you how you can initialise `lit-up` independently. These are the basic steps to make a `lit-up` application in a file called `index.js`.
 
 * Import modules. You can use the CDN links shown below or [install locally](#installation).
 
@@ -37,8 +32,8 @@ import { app } from "https://cdn.pika.dev/lit-up"
 ```js
 const model = {
   name: "World",
-  dice: { 
-    score: 0 
+  dice: {
+    score: 0
   }
 }
 ```
@@ -91,7 +86,7 @@ npm install --save-dev es-dev-server
 es-dev-server --open --watch --node-resolve 
 ```
 
-`es-dev-server` will open your app's page on http://localhost:8080, reload it whenever you make changes and link "naked imports" like those below to the appropriate location within `node_modules`.
+`es-dev-server` will open your app's page, reload it whenever you make changes and link "naked imports" like those below to the appropriate location within `node_modules`.
 
 ```js
 import { html, render } from "lit-html"
@@ -275,6 +270,8 @@ window.onresize = up(winResized)
 
 ## Application Structure
 
+Each application initialised with `lit-up` has its own `up` handler for user events. The easiest way to access this is using the [`lit-app`](https://github.com/klaudhaus/lit-app) module, which bundles `lit-up` state management along with isomorphic view support. But if you're using `lit-up` directly, there are various ways of obtaining a reference to `up`.
+
 ### Accessing `up`
 
 There are three ways to access the `up` function - via the promised return value of `app`, as a key provided to `view` or as the argument to `bootstrap`.
@@ -332,61 +329,5 @@ export const component = ({ value, click }) => html`
 
 The `bootstrap` function receives `up` as an argument and can make it available prior to the initial render. This can seem more convenient than passing references to `up` around in the view, but the question arises how to publish `up` for consumption by view fragments. If exposed on the app module itself, components that import it will be coupled tightly to the app and not be reusable. Assigning to the global `window` object could lead to conflicts or leaks with other page code.
 
-In order to resolve this problem - as well as produce components that can be used agnostically with other `lit-html` compatbile implementations - check out the [`lit-imp`](https://github.com/klaudhaus/lit-imp) package. This can be set up with:
+In order to resolve this problem - as well as produce components that can be used agnostically with other `lit-html` compatbile implementations - check out the [`lit-app`](https://github.com/klaudhaus/lit-imp) package. This wraps any provided bootstrap function to get access to `up` and export it as part of the application context.
 
-```js
-import { html } from "lit-html"
-import { up } from "lit-up"
-import { litImp } from "lit-imp"
-
-function bootstrap (up) { 
-  litImp ({ html, up })
-}
-```
-
-Following this, `up` can be imported in any view fragment module along with `html` directly from `lit-imp`.
-
-### Using Web Components
-
-You can use any standards-compliant Web Component in `lit-up` by installing it in your app as per its own documentation and then using the appropriate tag name and setting its attributes, properties and event handlers (using `up`) accordingly.
-
-```js
-import { WiredButton, WiredInput } from "wired-elements"
-
-const view = ({ model, up }) => html` 
-  <wired-input placeholder="Name"
-    @change=${up(setName)}></wired-input>
-  <wired-button
-    @click=${up(greet, model.name)}>
-      Greet ${model.name}</wired-button>`
-```
-
-If you identify a generic component that is commonly reused across different projects and possibly other front-end frameworks, it is a good candidate to be implemented as a Web Component using a library such as `lit-element` or `haunted`. 
-
-### Using Fragment Functions
-
-If you wish to split up your application view into smaller components for the purpose of clarity and organisation, rather than for reuse across different frameworks and organisations, building them as Web Components may be overkill. Also, Web Components may not be the best choice for SVG applications as there are some compatibility problems with the SVG namespace.
-
-Fragment functions implement a component, or fragment of the view, as a single function (which may itself call other fragment functions). They can accept data properties, event handlers and inner content.
-
-```js
-const contentButton = ({ label, content, click }) => html`
-  <button @click=${click}>
-    ${label}
-    ${content}
-  </button>`
-
-const view = ({ model, up }) => html`
-  <div class="part-of-the-view">
-    ${contentButton({ 
-      label: "User",
-      content: html`<i class="user-icon" />`
-      click: up(showUserProfile)
-    })}
-    ${contentButton({
-      label: "News",
-      content: html`<img src="news.png" />`
-      click: up(showNews)
-    })}
-  </div>`
-```
