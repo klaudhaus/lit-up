@@ -81,5 +81,10 @@ const view = ({ model }) => html`
 // Use a simple pattern for accessing `up` as an arg to `bootstrap`
 let up
 
+const bootstrap = ({ up: _up, url }) => {
+  console.log("Starting lit-up examples", url)
+  up = _up
+}
+
 // Launch the app
-app({ model, view, render, bootstrap: x => { up = x }, logger: true })
+app({ model, view, render, bootstrap, logger: true })

@@ -125,7 +125,7 @@ The `render` method from `lit-html` or an equivalent implementation. This is req
 
 * `bootstrap`
 
-An initial update function that will be called before the first view render. You cannot specify data or event parameters for the bootstrap function. It will receive a reference to the app's `up` function as its only argument. As per normal updates, if bootstrap is an async function the view will be rendered both before the first `await` and upon function completion. See [Asynchronous Updates](####asynchronous-updates) for more information.
+An initial update function that will be called before the first view render. It receives a data object in the form `{ up, model, url }`, where `up` is the application's update event handler, `model` is the same object passed to `app` and `url` is a URL object containing the page location. As per normal updates, if bootstrap is an async function the view will be rendered both before the first `await` and upon function completion. See [Asynchronous Updates](####asynchronous-updates) for more information.
 
 * `logger`
 
@@ -274,7 +274,7 @@ Each application initialised with `lit-up` has its own `up` handler for user eve
 
 ### Accessing `up`
 
-There are three ways to access the `up` function - via the promised return value of `app`, as a key provided to `view` or as the argument to `bootstrap`.
+There are three ways to access the `up` function - via the promised return value of `app`, or as a key provided to both the `view` and `bootstrap` functions.
 
 ##### Return from `app`
 
@@ -284,7 +284,7 @@ The return value of `app` is a promise of its related `up` function. This can be
 app({ model, view, render }).then(up => window.onresize = up(winResized))
 ```
 
-##### Named parameter in `view`
+##### Argument to `view`
 
 The `up` function is provided to `view` on each render. This can be used for simple apps with a single view function, or for more complex apps with views split across different functions where the `up` function can be passed onwards as necessary.
 

@@ -61,9 +61,7 @@ describe("lit-up", () => {
       const view = ({ model }) => html`Count: ${model.counter}`
       const inc = () => { model.counter++ }
       const dec = () => { model.counter-- }
-      let up
-      const bootstrap = v => { up = v }
-      await app({ model, view, render, bootstrap })
+      const up = await app({ model, view, render })
       document.body.should.equal("Count: 0")
       await up(inc)()
       document.body.should.equal("Count: 1")
@@ -75,9 +73,7 @@ describe("lit-up", () => {
       const model = { name: "Tim" }
       const view = ({ model }) => html`Hello, ${model.name}`
       const setName = name => { model.name = name }
-      let up
-      const bootstrap = v => { up = v }
-      await app({ model, view, render, bootstrap })
+      const up = await app({ model, view, render })
       document.body.should.equal("Hello, Tim")
       await up(setName, "Bob")()
       document.body.should.equal("Hello, Bob")
@@ -87,13 +83,12 @@ describe("lit-up", () => {
       const model = { name: "Tim" }
       const view = ({ model }) => html`Hello, ${model.name}`
       const setName = (data, event) => { model.name = event.target.value }
-      let up
-      const bootstrap = v => { up = v }
-      await app({ model, view, render, bootstrap })
+      const up = await app({ model, view, render })
       document.body.should.equal("Hello, Tim")
       const event = {
         target: { value: "Bob" },
-        preventDefault () {}
+        preventDefault () {},
+        stopPropagation () {}
       }
       await up(setName)(event)
       document.body.should.equal("Hello, Bob")
@@ -104,18 +99,13 @@ describe("lit-up", () => {
       const setText = (text) => { model.text = text }
       const logEntries = []
       const logger = ({ name, data }) => {
-        const type = typeof data
-        data = type === "function" ? data.name : data
         logEntries.push(`Update name: ${name}, Data: ${data}`)
       }
       const view = () => html``
-      let up
-      const bootstrap = v => { up = v }
-      await app({ model, view, render, bootstrap, logger })
+      const up = await app({ model, view, render, logger })
       await up(setText, "first")()
       await up(setText, "second")()
       logEntries.should.have.length(3)
-      logEntries[0].should.equal("Update name: bootstrap, Data: up")
       logEntries[1].should.equal("Update name: setText, Data: first")
       logEntries[2].should.equal("Update name: setText, Data: second")
     })

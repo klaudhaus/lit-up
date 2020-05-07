@@ -45,9 +45,9 @@ export const app = async ({
 
       // Do update and log
       const entry = {
-        update, data, event, isChained, model,
         name: update ? update.name : "",
-        time: new Date().getTime()
+        time: new Date(),
+        isChained, data, event, update, model
       }
       let result = update ? update(data, event) : false
       logger(entry)
@@ -55,7 +55,7 @@ export const app = async ({
       // Handle async updates
       if (result instanceof Promise) {
         const renderAndWait = await Promise.all([doRender(), result])
-        logger({ ...entry, ...{ time: new Date().getTime() } })
+        logger({ ...entry, ...{ time: new Date() } })
         result = renderAndWait[1]
       }
 
@@ -81,7 +81,9 @@ export const app = async ({
     await doUp({ update, data, event })
   }
 
-  await up(bootstrap, up)()
+  const url = typeof location !== "undefined" &&
+    (typeof URL !== "undefined" ? new URL(location) : location)
+  await up(bootstrap, { up, model, url })()
 
   return up
 }
