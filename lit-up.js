@@ -49,8 +49,15 @@ export const app = async ({
         time: new Date(),
         isChained, data, event, update, model
       }
-      let result = update ? update(data, event) : false
-      await logger(entry)
+      let result
+      try {
+        result = update ? update(data, event) : false
+        await logger(entry)
+      } catch (e) {
+        // Catch any update error, re-render (for example to show error message) and rethrow to halt the chain
+        await doRender()
+        throw e
+      }
 
       // Handle async updates
       if (result instanceof Promise) {
