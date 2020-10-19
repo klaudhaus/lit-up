@@ -1,6 +1,8 @@
 type UpOptions = { propagate?: boolean, doDefault?: boolean }
-type Update<T> = (data?: T, event?: Event) => unknown
-type Up<T> = (handler: Update<T>, data?: unknown, options?: UpOptions) => unknown
+type Update<T> = (data?: T, event?: Event) => UpdateResult<T>
+type ChainedUpdate<T> = Update<T> | { update: Update<T>, data: T }
+type UpdateResult<T> = ChainedUpdate<T> | Array<ChainedUpdate<T>> | void
+type Up<T> = (handler: Update<T>, data?: T, options?: UpOptions) => unknown
 
 // Simulate TemplateResult from lit-html as that lib is not a runtime dep
 type TemplateResult = {
@@ -34,7 +36,7 @@ type LoggerParams = {
   data: unknown
   event: Event
   model: Model
-  name: string,
+  name: string
   time: Date
   isChained: boolean
 }
@@ -49,4 +51,4 @@ type AppParams = {
   logger?: Logger
 }
 
-export function app (params: AppParams) : void
+export function app<T> (params: AppParams) : Promise<Up<T>>
