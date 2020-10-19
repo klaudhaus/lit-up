@@ -1,10 +1,10 @@
-type UpOptions = { propagate?: boolean, doDefault?: boolean }
-type Update<T> = (data?: T, event?: Event) => UpdateResult<T>
-type ChainedUpdate<T> = Update<T> | { update: Update<T>, data: T }
-type UpdateResult<T> = ChainedUpdate<T> | Array<ChainedUpdate<T>> | void
-type Up<T> = (handler: Update<T>, data?: T, options?: UpOptions) => unknown
+export type UpOptions = { propagate?: boolean, doDefault?: boolean }
+export type Update<T> = (data?: T, event?: Event) => UpdateResult<T>
+export type ChainedUpdate<T> = Update<T> | { update: Update<T>, data: T }
+export type UpdateResult<T> = ChainedUpdate<T> | Array<ChainedUpdate<T>> | void
+export type Up<T> = (handler: Update<T>, data?: T, options?: UpOptions) => unknown
 
-// Simulate TemplateResult from lit-html as that lib is not a runtime dep
+// Simulate types from lit-html as that lib is not a runtime dep
 type TemplateResult = {
   readonly strings: TemplateStringsArray
   readonly values: readonly unknown[]
@@ -12,11 +12,6 @@ type TemplateResult = {
   getHTML: (arg0: string) => string
   getTemplateElement: () => HTMLTemplateElement
 }
-
-type Model = unknown
-type ViewParams = { model: Model, up: Up<any> }
-type View = (params: ViewParams) => TemplateResult
-
 type RenderParams = {
   result: unknown
   container: Element | DocumentFragment
@@ -24,25 +19,31 @@ type RenderParams = {
 }
 type Render = (params: RenderParams) => void
 
-type BootstrapParams = {
-  model: Model
-  up: Up<any>
-  url: URL
-}
-type Boostrap = (params: BootstrapParams) => unknown
+export type Model = unknown
+export type ViewParams = { model: Model, up: Up<any> }
+export type ViewResultItem = string | TemplateResult
+export type ViewResult = ViewResultItem | ViewResultItem[]
+export type View = (params: ViewParams) => ViewResult
 
-type LoggerParams = {
-  update: unknown
-  data: unknown
-  event: Event
-  model: Model
-  name: string
-  time: Date
-  isChained: boolean
+export type BootstrapParams = {
+  model?: Model
+  up?: Up<any>
+  url?: URL
 }
-type Logger = (params: LoggerParams) => void
+export type Boostrap = (params: BootstrapParams) => unknown
 
-type AppParams = {
+export type LoggerParams = {
+  update?: unknown
+  data?: unknown
+  event?: Event
+  model?: Model
+  name?: string
+  time?: Date
+  isChained?: boolean
+}
+export type Logger = (params: LoggerParams) => void
+
+export type AppParams = {
   model?: Model
   view?: View
   render?: Render
