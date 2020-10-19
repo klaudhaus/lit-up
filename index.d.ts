@@ -1,6 +1,6 @@
 type UpOptions = { propagate?: boolean, doDefault?: boolean }
-type Update = (...data: unknown[]) => unknown
-type Up = (handler: Update, data?: unknown, options?: UpOptions) => unknown
+type Update<T> = (data?: T, event?: Event) => unknown
+type Up<T> = (handler: Update<T>, data?: unknown, options?: UpOptions) => unknown
 
 // Simulate TemplateResult from lit-html as that lib is not a runtime dep
 type TemplateResult = {
@@ -12,7 +12,7 @@ type TemplateResult = {
 }
 
 type Model = unknown
-type ViewParams = { model: Model, up: Up }
+type ViewParams = { model: Model, up: Up<any> }
 type View = (params: ViewParams) => TemplateResult
 
 type RenderParams = {
@@ -24,7 +24,7 @@ type Render = (params: RenderParams) => void
 
 type BootstrapParams = {
   model: Model
-  up: Up
+  up: Up<any>
   url: URL
 }
 type Boostrap = (params: BootstrapParams) => unknown

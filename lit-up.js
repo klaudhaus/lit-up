@@ -50,7 +50,7 @@ export const app = async ({
         isChained, data, event, update, model
       }
       let result = update ? update(data, event) : false
-      logger(entry)
+      await logger(entry)
 
       // Handle async updates
       if (result instanceof Promise) {
