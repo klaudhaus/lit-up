@@ -34,7 +34,7 @@ export const app = async ({
    * @param propagate Propagate this event to containing element for further handling. Defaults to false.
    * @returns {Function} An event handler suitable for use in `lit-html` templates.
    */
-  const up = (update, data = {}, { doDefault = false, propagate = false } = {}) => async event => {
+  const up = (update, data, { doDefault = false, propagate = false } = {}) => async event => {
     if (event) {
       if (!doDefault) event.preventDefault()
       if (!propagate) event.stopPropagation()
