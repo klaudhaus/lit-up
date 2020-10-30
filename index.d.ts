@@ -19,7 +19,7 @@ type RenderParams = {
 }
 type Render = (params: RenderParams) => void
 
-export type Model = unknown
+export type Model = any
 export type ViewParams = { model: Model, up: Up<any> }
 export type ViewResultItem = string | TemplateResult
 export type ViewResult = ViewResultItem | ViewResultItem[]
@@ -30,25 +30,25 @@ export type BootstrapParams = {
   up?: Up<any>
   url?: URL
 }
-export type Boostrap = (params: BootstrapParams) => unknown
+export type Bootstrap = (params: BootstrapParams) => UpdateResult<any>
 
-export type LoggerParams = {
-  update?: unknown
-  data?: unknown
+export type LoggerParams<T> = {
+  update?: Update<T>
+  data?: T
   event?: Event
   model?: Model
   name?: string
   time?: Date
   isChained?: boolean
 }
-export type Logger = (params: LoggerParams) => void
+export type Logger = (params: LoggerParams<any>) => void
 
 export type AppParams = {
   model?: Model
   view?: View
   render?: Render
   element?: Element | DocumentFragment
-  bootstrap?: Boostrap
+  bootstrap?: Bootstrap
   logger?: Logger
 }
 
