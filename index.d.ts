@@ -1,7 +1,8 @@
 export type UpOptions = { propagate?: boolean, doDefault?: boolean }
-export type Update<T> = (data?: T, event?: Event) => UpdateResult<T> | Promise<UpdateResult<T>>
+export type Update<T> = (data?: T, event?: Event) => UpdateResult<T>
 export type ChainedUpdate<T> = Update<T> | { update: Update<T>, data?: T }
-export type UpdateResult<T> = ChainedUpdate<T> | Array<ChainedUpdate<T>> | void
+export type SyncUpdateResult<T> = ChainedUpdate<T> | Array<ChainedUpdate<T>> | void
+export type UpdateResult<T> = SyncUpdateResult<T> | Promise<SyncUpdateResult<T>>
 export type Up<T> = (handler: Update<T>, data?: T, options?: UpOptions) => (e?: Event) => any
 
 // Simulate types from lit-html as that lib is not a runtime dep

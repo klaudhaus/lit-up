@@ -1,6 +1,6 @@
 {
   "name": "lit-up",
-  "version": "1.1.1",
+  "version": "1.1.2A",
   "description": "A quick way to get up and running with `lit-html` templating and a reactive data flow",
   "main": "lit-up.js",
   "module": "lit-up.js",
