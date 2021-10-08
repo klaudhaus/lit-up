@@ -1,6 +1,18 @@
 
 ![lit-up logo](./doc/lit-up-logo.jpg)
 
+# Deprecation Notice
+
+Development of the `lit-up` and `lit-app` packages is no longer active.
+
+The package `@metaliq/up` is the newer equivalent of `lit-up`, with several advantages: 
+
+* Although it is in the metaliq organisation, it is a framework agnostic update handling mechanism. 
+* It works well with version 2 of `lit`, but it is no longer lit-dependent, having a general purpose "review" step instead of requiring a lit-compatible render method. 
+* It is implemented in TypeScript and thus has better typescript project integration and definitions than `lit-up`.
+
+Other package features closely reflect those of `lit-up`.
+
 # lit-up
 
 >  Minimal yet scalable state pattern for interactive web apps with [`lit-html`](https://lit-html.polymer-project.org/) templates
